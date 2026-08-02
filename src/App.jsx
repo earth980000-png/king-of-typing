@@ -7,7 +7,6 @@ import {
   saveUserData,
   loadUserData,
   getLeaderboard,
-  isFirebaseConfigured,
   checkRedirectResult
 } from './firebase';
 import { ArcadeCanvas } from './components/ArcadeCanvas';
@@ -20,12 +19,26 @@ import confetti from 'canvas-confetti';
 
 export function App() {
   const [user, setUser] = useState(null);
-  const [gold, setGold] = useState(300);
-  const [ownedCharIds, setOwnedCharIds] = useState(['kyo', 'iori']);
-  const [equippedCharId, setEquippedCharId] = useState('kyo');
-  const [maxCpm, setMaxCpm] = useState(0);
-  const [lang, setLang] = useState('ko');
+  
+  // 로컬스토리지 백업을 활용한 초기화 상태 복원 (창을 새로 열어도 무조건 보존)
+  const getInitialState = () => {
+    try {
+      const saved = localStorage.getItem('kot_user_data');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {}
+    return { gold: 300, ownedCharIds: ['kyo', 'iori'], equippedCharId: 'kyo', maxCpm: 0 };
+  };
 
+  const initialState = getInitialState();
+  const [gold, setGold] = useState(initialState.gold);
+  const [ownedCharIds, setOwnedCharIds] = useState(initialState.ownedCharIds);
+  const [equippedCharId, setEquippedCharId] = useState(initialState.equippedCharId);
+  const [maxCpm, setMaxCpm] = useState(initialState.maxCpm);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
+  const [lang, setLang] = useState('ko');
   const [gameMode, setGameMode] = useState('menu');
   const [stage, setStage] = useState(1);
 
@@ -42,7 +55,6 @@ export function App() {
   const [isSuperMoveActive, setIsSuperMoveActive] = useState(false);
   const [gameOverResult, setGameOverResult] = useState(null);
 
-  // 이번 판 타수 및 CPM 기록 통계
   const [matchCpmList, setMatchCpmList] = useState([]);
   const [avgCpm, setAvgCpm] = useState(0);
 
@@ -69,22 +81,25 @@ export function App() {
           if (profile.maxCpm !== undefined) setMaxCpm(profile.maxCpm);
         }
       }
+      setIsDataLoaded(true);
     });
     return () => unsub();
   }, []);
 
-  // 유저 데이터 변경 시 Firebase 저장 보장
+  // 로컬스토리지 및 Firebase 동시 세이브 (데이터 로드 완료 후에만 세이브 락 해제)
   useEffect(() => {
-    if (user) {
+    const dataToSave = { gold, ownedCharIds, equippedCharId, maxCpm };
+    try {
+      localStorage.setItem('kot_user_data', JSON.stringify(dataToSave));
+    } catch (e) {}
+
+    if (isDataLoaded && user) {
       saveUserData(user.uid, {
-        gold,
-        ownedCharIds,
-        equippedCharId,
-        maxCpm,
+        ...dataToSave,
         displayName: user.displayName || '격투가'
       });
     }
-  }, [user, gold, ownedCharIds, equippedCharId, maxCpm]);
+  }, [gold, ownedCharIds, equippedCharId, maxCpm, user, isDataLoaded]);
 
   const equippedChar = CHARACTERS.find(c => c.id === equippedCharId) || CHARACTERS[0];
 
@@ -245,12 +260,16 @@ export function App() {
       newMax = calculatedAvgCpm;
     }
 
-    // 명예의 전당 즉시 동기화
+    const earned = result === 'win' ? Math.round((150 + stage * 30) * (1 + (equippedChar.goldBonus || 0))) : 30;
+    const nextGold = gold + earned;
+    setGold(nextGold);
+
     saveUserData(user?.uid || 'guest_player', {
       displayName: user?.displayName || '격투가',
       maxCpm: Math.max(newMax, calculatedAvgCpm),
       equippedCharId,
-      gold
+      gold: nextGold,
+      ownedCharIds
     });
 
     setGameOverResult(result);
@@ -258,14 +277,6 @@ export function App() {
     if (result === 'win') {
       soundEngine.playVictory();
       confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
-
-      const baseGold = 150 + stage * 30;
-      const goldBonusMult = 1 + (equippedChar.goldBonus || 0);
-      const earnedGold = Math.round(baseGold * goldBonusMult);
-
-      setGold(g => g + earnedGold);
-    } else {
-      setGold(g => g + 30);
     }
   };
 
@@ -396,7 +407,7 @@ export function App() {
       <main className="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full">
         {gameMode === 'menu' && (
           <div className="w-full text-center flex flex-col items-center py-4 animate-fadeIn">
-            {/* KOF 98 아케이드 스포트라이트 스테이지 */}
+            {/* KOF 98 타이틀 화면 */}
             <div 
               className="relative w-full max-w-3xl border-4 border-amber-500 rounded-3xl p-8 mb-8 shadow-[0_0_60px_rgba(245,166,35,0.4)] overflow-hidden bg-cover bg-center"
               style={{ 
@@ -542,7 +553,6 @@ export function App() {
                 </div>
               </div>
 
-              {/* 모달 버튼 영역 (버그 수정: 메인 이동 및 다음 스테이지 진행 버튼) */}
               <div className="flex gap-3">
                 <button
                   onClick={goToMainMenu}
