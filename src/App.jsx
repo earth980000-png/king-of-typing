@@ -109,7 +109,7 @@ export function App() {
 
     const timer = setInterval(() => {
       setEnemyAction('punch');
-      soundEngine.playKick();
+      soundEngine.playHurt();
 
       const dmg = Math.round(5 + stage * 1.5);
       setPlayerHp(prev => {

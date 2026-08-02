@@ -1,4 +1,4 @@
-// Web Audio API 기반 아케이드 레트로 사운드 엔진 + BGM 시스템
+// Web Audio API 기반 오락실 KOF 감성 리얼 타격/피격 사운드 엔진
 
 class SoundEngine {
   constructor() {
@@ -18,99 +18,193 @@ class SoundEngine {
     }
   }
 
-  // 약공격 (Punch)
+  // 1. 약공격 타격음 (Light Punch Smack - 찰진 오락실 펀치)
   playPunch() {
     this.init();
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(180, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.1);
-
-    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.1);
-  }
-
-  // 중공격 (Kick)
-  playKick() {
-    this.init();
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(240, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.18);
-
-    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.18);
-  }
-
-  // 강공격 (Fireball / Heavy Hit)
-  playFireball() {
-    this.init();
     const now = this.ctx.currentTime;
-    
-    const bufferSize = this.ctx.sampleRate * 0.3;
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+
+    // Body impact (low frequency pitch drop)
+    const bodyOsc = this.ctx.createOscillator();
+    const bodyGain = this.ctx.createGain();
+    bodyOsc.type = 'triangle';
+    bodyOsc.frequency.setValueAtTime(280, now);
+    bodyOsc.frequency.exponentialRampToValueAtTime(50, now + 0.12);
+
+    bodyGain.gain.setValueAtTime(0.6, now);
+    bodyGain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+    bodyOsc.connect(bodyGain);
+    bodyGain.connect(this.ctx.destination);
+
+    bodyOsc.start(now);
+    bodyOsc.stop(now + 0.12);
+
+    // Smack noise snap
+    const bufSize = this.ctx.sampleRate * 0.08;
+    const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
 
     const noise = this.ctx.createBufferSource();
-    noise.buffer = buffer;
+    noise.buffer = buf;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1800, now);
+    filter.Q.value = 1.5;
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.5, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+
+    noise.start(now);
+    noise.stop(now + 0.08);
+  }
+
+  // 2. 중공격 타격음 (Heavy Kick Impact - 묵직한 복부 타격)
+  playKick() {
+    this.init();
+    const now = this.ctx.currentTime;
+
+    // Sub bass punch
+    const subOsc = this.ctx.createOscillator();
+    const subGain = this.ctx.createGain();
+    subOsc.type = 'sine';
+    subOsc.frequency.setValueAtTime(320, now);
+    subOsc.frequency.exponentialRampToValueAtTime(30, now + 0.2);
+
+    subGain.gain.setValueAtTime(0.8, now);
+    subGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+    subOsc.connect(subGain);
+    subGain.connect(this.ctx.destination);
+
+    subOsc.start(now);
+    subOsc.stop(now + 0.2);
+
+    // Crack smack
+    const bufSize = this.ctx.sampleRate * 0.12;
+    const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.2));
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buf;
 
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(1000, now);
-    filter.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+    filter.frequency.setValueAtTime(1200, now);
 
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.5, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.6, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
 
     noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.ctx.destination);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
 
-    noise.start();
-    noise.stop(now + 0.3);
+    noise.start(now);
+    noise.stop(now + 0.12);
   }
 
-  // 5콤보 달성 & KOF 필살기 화면 암전 컷인 사운드
+  // 3. 강공격/필살기 폭발음 (Heavy Fireball / Special Explosion)
+  playFireball() {
+    this.init();
+    const now = this.ctx.currentTime;
+
+    // Massive boom bass
+    const boomOsc = this.ctx.createOscillator();
+    const boomGain = this.ctx.createGain();
+    boomOsc.type = 'sawtooth';
+    boomOsc.frequency.setValueAtTime(200, now);
+    boomOsc.frequency.exponentialRampToValueAtTime(20, now + 0.38);
+
+    boomGain.gain.setValueAtTime(0.9, now);
+    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.38);
+
+    boomOsc.connect(boomGain);
+    boomGain.connect(this.ctx.destination);
+
+    boomOsc.start(now);
+    boomOsc.stop(now + 0.38);
+
+    // Fire blast noise
+    const bufSize = this.ctx.sampleRate * 0.35;
+    const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buf;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(2500, now);
+    filter.frequency.exponentialRampToValueAtTime(150, now + 0.35);
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.7, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+
+    noise.start(now);
+    noise.stop(now + 0.35);
+  }
+
+  // 4. 피격 피격음 (Hurt / Damage Taken Sound)
+  playHurt() {
+    this.init();
+    const now = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(160, now);
+    osc.frequency.linearRampToValueAtTime(90, now + 0.15);
+
+    gain.gain.setValueAtTime(0.5, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.15);
+  }
+
+  // 5. 5콤보 KOF 필살기 암전 연출 사운드
   playSuperSpecial() {
     this.init();
     const now = this.ctx.currentTime;
     
+    // Pitch sweep riser
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, now);
-    osc.frequency.linearRampToValueAtTime(600, now + 0.15);
-    osc.frequency.exponentialRampToValueAtTime(80, now + 0.5);
+    osc.frequency.setValueAtTime(120, now);
+    osc.frequency.linearRampToValueAtTime(850, now + 0.25);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.6);
 
-    gain.gain.setValueAtTime(0.6, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    gain.gain.setValueAtTime(0.8, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
-    osc.start();
-    osc.stop(now + 0.5);
+    osc.start(now);
+    osc.stop(now + 0.6);
+
+    // Boom echo
+    setTimeout(() => this.playFireball(), 150);
   }
 
   // 콤보 상승 효과음
@@ -120,41 +214,41 @@ class SoundEngine {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    const baseFreq = 440 + count * 50;
+    const baseFreq = 480 + count * 60;
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(baseFreq, now);
-    osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.4, now + 0.14);
 
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
-    osc.start();
-    osc.stop(now + 0.15);
+    osc.start(now);
+    osc.stop(now + 0.14);
   }
 
   // 승리 환호 사운드
   playVictory() {
     this.init();
     const now = this.ctx.currentTime;
-    const notes = [261.63, 329.63, 392.00, 523.25];
+    const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
     notes.forEach((freq, index) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + index * 0.1);
-      gain.gain.setValueAtTime(0.3, now + index * 0.1);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.1 + 0.25);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + index * 0.08);
+      gain.gain.setValueAtTime(0.35, now + index * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.08 + 0.3);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-      osc.start(now + index * 0.1);
-      osc.stop(now + index * 0.1 + 0.25);
+      osc.start(now + index * 0.08);
+      osc.stop(now + index * 0.08 + 0.3);
     });
   }
 
-  // 뽑기 캡슐 오픈 사운드
+  // 뽑기 오픈 사운드
   playGachaReveal(grade) {
     this.init();
     if (grade === 'Legendary') {
@@ -213,7 +307,7 @@ class SoundEngine {
       this._bgmNodes.push(osc);
     });
 
-    // Percussion (noise hits on beats)
+    // Percussion
     for (let i = 0; i < 8; i++) {
       const bufSize = this.ctx.sampleRate * 0.06;
       const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
@@ -235,7 +329,6 @@ class SoundEngine {
       this._bgmNodes.push(noise);
     }
 
-    // Loop every 4 seconds
     this._bgmTimer = setTimeout(() => {
       this._bgmNodes = [];
       this._playBGMLoop();
