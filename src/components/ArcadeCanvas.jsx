@@ -87,16 +87,16 @@ export const ArcadeCanvas = ({
       // 1. KOF 98 바닥 무대 & 링 렌더링
       drawKofStageFloor(ctx, canvas.width, canvas.height);
 
-      // 2. KOF 98 시안 A 복각 캐릭터 스프라이트 렌더링
+      // 2. KOF 98 전체 8종 캐릭터 고화질 도트 픽셀 렌더링
       const p1X = 220;
       const p2X = 580;
       const groundY = 275;
 
       // P1 Fighter
-      drawKofFighterSpriteA(ctx, p1X, groundY, playerChar, playerAction, false, tick, combo);
+      drawDetailedFighterSprite(ctx, p1X, groundY, playerChar, playerAction, false, tick, combo);
 
       // P2 Enemy Fighter
-      drawKofFighterSpriteA(ctx, p2X, groundY, enemyChar, enemyAction, true, tick, 0);
+      drawDetailedFighterSprite(ctx, p2X, groundY, enemyChar, enemyAction, true, tick, 0);
 
       // 3. 힛스파크 파티클 & 타격 데미지 팝업
       particles.forEach(p => {
@@ -131,7 +131,7 @@ export const ArcadeCanvas = ({
       });
       hitTexts = hitTexts.filter(ht => ht.alpha > 0);
 
-      // 4. 5콤보 달성 시 KOF 98 대사치 초필살기 암전
+      // 4. 5콤보 달성 시 KOF 98 초필살기 암전
       if (isSuperMoveActive) {
         drawKof98SuperSpecialOverlay(ctx, canvas.width, canvas.height, playerChar, combo);
       }
@@ -157,11 +157,10 @@ export const ArcadeCanvas = ({
         className="w-full h-auto block bg-transparent"
       />
 
-      {/* 🥊 KOF 98 오리지널 100% 복각 HUD UI 🥊 */}
+      {/* 🥊 KOF 98 오리지널 HUD UI 🥊 */}
       <div className="absolute top-2 left-3 right-3 pointer-events-none flex justify-between items-start">
         {/* Player 1 KOF 98 Bar */}
         <div className="w-[340px]">
-          {/* CHALLENGER! & Name */}
           <div className="flex items-center justify-between mb-0.5 px-1">
             <span className="text-[11px] font-black italic tracking-widest text-cyan-300 drop-shadow-[0_0_5px_#06b6d4]">
               CHALLENGER!
@@ -171,14 +170,11 @@ export const ArcadeCanvas = ({
             </span>
           </div>
 
-          {/* KOF 98 Angular Health Bar Container */}
           <div className="flex items-center gap-1.5">
-            {/* Kyo Portrait Avatar Box */}
             <div 
               className="w-11 h-11 border-2 border-white rounded bg-slate-900 overflow-hidden shrink-0 shadow-[0_0_10px_#ffffff]"
               dangerouslySetInnerHTML={{ __html: playerChar.avatarSvg || '' }}
             />
-            {/* Green / Yellow KOF 98 Bar */}
             <div className="flex-1">
               <div className="w-full h-5 bg-black border-2 border-white rounded-sm overflow-hidden p-0.5 shadow-inner">
                 <div 
@@ -278,8 +274,8 @@ function drawKofStageFloor(ctx, w, h) {
   ctx.ellipse(580, 275, 45, 10, 0, 0, Math.PI * 2); ctx.fill();
 }
 
-// 시안 A KOF 98 오리지널 쿄 & 이오리 픽셀 정통 체형 렌더러
-function drawKofFighterSpriteA(ctx, x, y, char, action, isFlip, tick, combo) {
+// 🥊 전체 8종 캐릭터 고화질 16-bit 픽셀 디테일 스프라이트 렌더러 🥊
+function drawDetailedFighterSprite(ctx, x, y, char, action, isFlip, tick, combo) {
   ctx.save();
   ctx.translate(x, y);
   if (isFlip) ctx.scale(-1, 1);
@@ -287,6 +283,7 @@ function drawKofFighterSpriteA(ctx, x, y, char, action, isFlip, tick, combo) {
   const idleY = Math.sin(tick * 0.16) * 4;
   const charId = char.id || 'kyo';
 
+  // 0. 샌드백
   if (charId === 'sandbag') {
     ctx.fillStyle = '#64748b';
     ctx.beginPath(); ctx.roundRect(-22, -90 + idleY, 44, 75, 12); ctx.fill();
@@ -296,33 +293,31 @@ function drawKofFighterSpriteA(ctx, x, y, char, action, isFlip, tick, combo) {
     return;
   }
 
-  // 1. KOF 98 KYO (쿠사나기 쿄 - 시안 A)
+  // 1. 쿠사나리 큐 (KYU KUSANARI / GOD KYU)
   if (charId === 'kyo' || charId === 'god_kyo') {
-    // 바지 & 신발
-    ctx.fillStyle = '#ffffff'; // 무술화
+    // 무술화
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(-22, -10 + idleY, 14, 10);
     ctx.fillRect(8, -10 + idleY, 14, 10);
-
-    ctx.fillStyle = '#0f172a'; // 교복 바지
+    // 바지
+    ctx.fillStyle = '#0f172a';
     ctx.fillRect(-20, -48 + idleY, 16, 40);
     ctx.fillRect(6, -48 + idleY, 16, 40);
-
-    // 티셔츠 & 가죽 자켓
+    // 흰 T셔츠 & 검은 가죽 자켓
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(-16, -90 + idleY, 32, 45);
-    ctx.fillStyle = '#1e293b';
+    ctx.fillStyle = charId === 'god_kyo' ? '#ea580c' : '#1e293b';
     ctx.fillRect(-24, -95 + idleY, 12, 48);
     ctx.fillRect(12, -95 + idleY, 12, 48);
-
-    // 얼굴 & 하얀 머리띠
+    // 얼굴 & 헤어 band
     ctx.fillStyle = '#fde047';
     ctx.beginPath(); ctx.arc(0, -112 + idleY, 16, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#0f172a';
     ctx.beginPath(); ctx.arc(0, -118 + idleY, 18, Math.PI, 0); ctx.fill();
-    ctx.fillStyle = '#ffffff'; // 머리띠
+    ctx.fillStyle = charId === 'god_kyo' ? '#facc15' : '#ffffff'; // 머리띠
     ctx.fillRect(-17, -116 + idleY, 34, 6);
 
-    // 콤보 화염 연출
+    // 공격 화염 기술 이펙트 (황물기/독물기/대사격)
     if (action === 'punch' || action === 'fireball' || action === 'kick') {
       ctx.fillStyle = '#fde047';
       ctx.fillRect(8, -90 + idleY, 50, 14);
@@ -340,10 +335,10 @@ function drawKofFighterSpriteA(ctx, x, y, char, action, isFlip, tick, combo) {
       ctx.fillRect(10, -88 + idleY, 18, 30);
     }
   } 
-  // 2. KOF 98 IORI (야가미 이오리 - 시안 A)
+  // 2. 야가리 이오리 (IORI YAGARI / OROCHI IORIN)
   else if (charId === 'iori' || charId === 'orochi_iori') {
     // 붉은 바지 & 가죽 끈
-    ctx.fillStyle = '#dc2626';
+    ctx.fillStyle = charId === 'orochi_iori' ? '#e11d48' : '#dc2626';
     ctx.fillRect(-22, -48 + idleY, 18, 40);
     ctx.fillRect(4, -48 + idleY, 18, 40);
 
@@ -354,22 +349,23 @@ function drawKofFighterSpriteA(ctx, x, y, char, action, isFlip, tick, combo) {
     // 네이비 셔츠 & 흰 깃
     ctx.fillStyle = '#1e1b4b';
     ctx.fillRect(-24, -95 + idleY, 48, 50);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = charId === 'orochi_iori' ? '#881337' : '#ffffff';
     ctx.beginPath(); ctx.moveTo(-15, -95 + idleY); ctx.lineTo(0, -70 + idleY); ctx.lineTo(15, -95 + idleY); ctx.fill();
 
     // 얼굴 & 붉은 롱헤어
-    ctx.fillStyle = '#fef08a';
+    ctx.fillStyle = charId === 'orochi_iori' ? '#ffe4e6' : '#fef08a';
     ctx.beginPath(); ctx.arc(0, -110 + idleY, 16, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#dc2626';
     ctx.beginPath(); ctx.arc(-2, -115 + idleY, 20, Math.PI * 0.8, Math.PI * 2.2); ctx.fill();
     ctx.fillRect(2, -120 + idleY, 12, 24);
 
+    // 어둠쫓기/팔지녀 자색 화염 & 클로 공격
     if (action === 'punch' || action === 'fireball' || action === 'kick') {
       ctx.fillStyle = '#fef08a';
       ctx.fillRect(8, -92 + idleY, 50, 14);
 
       ctx.save();
-      ctx.fillStyle = '#a855f7';
+      ctx.fillStyle = charId === 'orochi_iori' ? '#f43f5e' : '#a855f7';
       ctx.shadowColor = '#c084fc';
       ctx.shadowBlur = 30;
       ctx.beginPath(); ctx.arc(65, -85 + idleY, 26, 0, Math.PI * 2); ctx.fill();
@@ -380,13 +376,152 @@ function drawKofFighterSpriteA(ctx, x, y, char, action, isFlip, tick, combo) {
       ctx.fillStyle = '#fef08a';
       ctx.fillRect(8, -88 + idleY, 18, 30);
     }
-  } else {
-    ctx.fillStyle = char.color || '#3b82f6';
-    ctx.fillRect(-20, -90 + idleY, 40, 48);
-    ctx.fillStyle = char.secondaryColor || '#1e293b';
-    ctx.fillRect(-18, -42 + idleY, 36, 35);
+  } 
+  // 3. 백열각 춘리 (CHUN-RI)
+  else if (charId === 'chunli') {
+    // 파란 부츠
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillRect(-20, -12 + idleY, 14, 12);
+    ctx.fillRect(6, -12 + idleY, 14, 12);
+    // 허벅지 & 살구색 피부
+    ctx.fillStyle = '#fde68a';
+    ctx.fillRect(-18, -48 + idleY, 14, 38);
+    ctx.fillRect(4, -48 + idleY, 14, 38);
+    // 청색 치파오 & 금빛 테두리
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillRect(-22, -92 + idleY, 44, 46);
     ctx.fillStyle = '#fde047';
+    ctx.fillRect(-20, -92 + idleY, 40, 6);
+
+    // 머리 만두 덤블린 & 살구색 얼굴
+    ctx.fillStyle = '#1c1917';
+    ctx.beginPath(); ctx.arc(-16, -118 + idleY, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(16, -118 + idleY, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffffff'; // 만두 띠
+    ctx.fillRect(-18, -120 + idleY, 6, 6);
+    ctx.fillRect(12, -120 + idleY, 6, 6);
+    ctx.fillStyle = '#fde68a';
+    ctx.beginPath(); ctx.arc(0, -110 + idleY, 14, 0, Math.PI * 2); ctx.fill();
+
+    // 백열각 (Lightning Leg Kick) 폭풍 잔상 이펙트
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#3b82f6';
+      ctx.shadowColor = '#60a5fa';
+      ctx.shadowBlur = 20;
+      ctx.fillRect(10, -50 + idleY, 55, 18);
+      ctx.fillRect(14, -70 + idleY, 50, 16);
+      ctx.fillRect(18, -30 + idleY, 45, 16);
+    }
+  }
+  // 4. 테리 보가로 (TERRY BOGARO)
+  else if (charId === 'terry') {
+    // 빨간 운동화
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(-22, -10 + idleY, 16, 10);
+    ctx.fillRect(6, -10 + idleY, 16, 10);
+    // 파란 청바지
+    ctx.fillStyle = '#2563eb';
+    ctx.fillRect(-20, -48 + idleY, 16, 40);
+    ctx.fillRect(4, -48 + idleY, 16, 40);
+    // 흰 T셔츠 & 빨간 가죽 베스트 자켓
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-18, -90 + idleY, 36, 44);
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-24, -92 + idleY, 12, 46);
+    ctx.fillRect(12, -92 + idleY, 12, 46);
+
+    // 얼굴 & 금발 & 빨간 FATAL 모자
+    ctx.fillStyle = '#fde68a';
     ctx.beginPath(); ctx.arc(0, -108 + idleY, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fbbf24'; // 금발
+    ctx.fillRect(-14, -114 + idleY, 28, 8);
+    ctx.fillStyle = '#dc2626'; // 빨간 모자
+    ctx.fillRect(-18, -122 + idleY, 36, 10);
+    ctx.fillRect(-22, -114 + idleY, 44, 4);
+
+    // 파워 가이져 (Power Geyser) 지면 폭발 이펙트
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.save();
+      ctx.fillStyle = '#f97316';
+      ctx.shadowColor = '#facc15';
+      ctx.shadowBlur = 30;
+      ctx.beginPath(); ctx.moveTo(20, 0); ctx.lineTo(60, -90); ctx.lineTo(80, 0); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+  }
+  // 5. 그림자 닌자 류 (SHADOW NINJA)
+  else if (charId === 'shadow_ninja') {
+    // 닌자 부츠
+    ctx.fillStyle = '#374151';
+    ctx.fillRect(-20, -10 + idleY, 14, 10);
+    ctx.fillRect(6, -10 + idleY, 14, 10);
+    // 보라 닌자 복장 & 띠
+    ctx.fillStyle = '#1e1b4b';
+    ctx.fillRect(-18, -90 + idleY, 36, 80);
+    ctx.fillStyle = '#7c3aed';
+    ctx.fillRect(-18, -50 + idleY, 36, 6);
+
+    // 복면 Head & 안광 Glowing Eyes
+    ctx.fillStyle = '#1e1b4b';
+    ctx.beginPath(); ctx.arc(0, -110 + idleY, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c084fc'; // 안대
+    ctx.fillRect(-14, -112 + idleY, 28, 6);
+    ctx.fillStyle = '#ffffff'; // 안광
+    ctx.beginPath(); ctx.arc(-5, -109 + idleY, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5, -109 + idleY, 2.5, 0, Math.PI * 2); ctx.fill();
+
+    // 등 뒤의 카타나 장검
+    ctx.strokeStyle = '#c0c0c0';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(-10, -115 + idleY); ctx.lineTo(-26, -45 + idleY); ctx.stroke();
+
+    // 환영 베기 잔상 이펙트
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.save();
+      ctx.strokeStyle = '#c084fc';
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 25;
+      ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.arc(35, -75 + idleY, 45, -Math.PI * 0.4, Math.PI * 0.4); ctx.stroke();
+      ctx.restore();
+    }
+  }
+  // 6. 사이보그 킹 (CYBER MECHA)
+  else if (charId === 'cyber_mecha') {
+    // 제트 부츠
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-22, -12 + idleY, 16, 12);
+    ctx.fillRect(6, -12 + idleY, 16, 12);
+    ctx.fillStyle = '#f97316'; // 분사구
+    ctx.fillRect(-18, -4 + idleY, 8, 4);
+    ctx.fillRect(10, -4 + idleY, 8, 4);
+
+    // 메카 장갑 체형
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-24, -92 + idleY, 48, 80);
+    // 가슴 플라즈마 코어
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath(); ctx.arc(0, -65 + idleY, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(0, -65 + idleY, 4, 0, Math.PI * 2); ctx.fill();
+
+    // 메카 투구 & 바이저 안광
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-18, -122 + idleY, 36, 28);
+    ctx.fillStyle = '#22d3ee'; // 바이저
+    ctx.fillRect(-14, -114 + idleY, 28, 8);
+
+    // 플라즈마 로켓 / 미사일 이펙트
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.save();
+      ctx.fillStyle = '#06b6d4';
+      ctx.shadowColor = '#22d3ee';
+      ctx.shadowBlur = 30;
+      ctx.fillRect(20, -75 + idleY, 50, 14);
+      ctx.fillRect(24, -95 + idleY, 45, 12);
+      ctx.fillRect(24, -55 + idleY, 45, 12);
+      ctx.restore();
+    }
   }
 
   ctx.restore();
