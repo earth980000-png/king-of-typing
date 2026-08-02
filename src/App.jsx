@@ -239,9 +239,19 @@ export function App() {
     }
     setAvgCpm(calculatedAvgCpm);
 
+    let newMax = maxCpm;
     if (calculatedAvgCpm > maxCpm) {
       setMaxCpm(calculatedAvgCpm);
+      newMax = calculatedAvgCpm;
     }
+
+    // 명예의 전당 즉시 동기화
+    saveUserData(user?.uid || 'guest_player', {
+      displayName: user?.displayName || '격투가',
+      maxCpm: Math.max(newMax, calculatedAvgCpm),
+      equippedCharId,
+      gold
+    });
 
     setGameOverResult(result);
 
