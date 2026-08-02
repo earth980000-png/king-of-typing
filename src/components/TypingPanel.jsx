@@ -13,6 +13,9 @@ export const TypingPanel = ({
   const [startTime, setStartTime] = useState(null);
   const [cpm, setCpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
+  
+  // 예문 중복 방지 인덱스 기록 히스토리
+  const usedIndicesRef = useRef({ ko: { word: [], short: [], long: [] }, en: { word: [], short: [], long: [] } });
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -38,9 +41,21 @@ export const TypingPanel = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [disabled, onSkillSelect]);
 
+  // 중복 없이 예문 불러오기 알고리즘
   const loadNewText = (type) => {
-    const list = TYPING_DATA[lang][type] || TYPING_DATA['ko']['word'];
-    const randomIndex = Math.floor(Math.random() * list.length);
+    const list = TYPING_DATA[lang]?.[type] || TYPING_DATA['ko']['word'];
+    const currentUsed = usedIndicesRef.current[lang]?.[type] || [];
+
+    // 이미 모든 예문을 1회 이상 사용했다면 리셋
+    let availableIndices = list.map((_, i) => i).filter(i => !currentUsed.includes(i));
+    if (availableIndices.length === 0) {
+      availableIndices = list.map((_, i) => i);
+      usedIndicesRef.current[lang][type] = [];
+    }
+
+    const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    usedIndicesRef.current[lang][type].push(randomIndex);
+
     setTargetText(list[randomIndex]);
     setInputText('');
     setStartTime(null);
@@ -55,7 +70,7 @@ export const TypingPanel = ({
     if (disabled) return;
     let value = e.target.value;
     
-    // 혹시라도 숫자 1, 2, 3이 들어간 경우 제거
+    // 숫자 1, 2, 3이 단어 입력창 끝에 들어오는 것 필터링
     if (value.endsWith('1') || value.endsWith('2') || value.endsWith('3')) {
       const lastChar = value.slice(-1);
       if (['1', '2', '3'].includes(lastChar)) {
@@ -138,7 +153,7 @@ export const TypingPanel = ({
           }`}
         >
           <span className="bg-black/40 text-rose-300 px-1.5 py-0.5 rounded font-mono text-[11px]">[3]</span>
-          <span className="uppercase tracking-wider">긴 문장 (강공격 ★대폭버프)</span>
+          <span className="uppercase tracking-wider">긴 문장 (강공격 ★필살)</span>
         </button>
       </div>
 
@@ -182,7 +197,7 @@ export const TypingPanel = ({
           <span className="text-emerald-400">ACCURACY: <strong className="text-sm text-white font-sans">{accuracy}%</strong></span>
         </div>
         <span className="text-slate-500 text-[11px] uppercase tracking-wider">
-          NUM KEYS CHOOSE ATTACK MODE
+          NON-REPEATING RANDOM PHRASE GENERATOR
         </span>
       </div>
     </div>
