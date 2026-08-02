@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-// 인물이 전혀 없는 웅장한 도시 야경 배경 (Urban City Night Skyline Background)
-const URBAN_CITY_BACKGROUND = 'linear-gradient(rgba(15, 23, 42, 0.35), rgba(2, 6, 23, 0.75)), url("https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200&auto=format&fit=crop")';
+// 다크 격투 아레나 배경 (CSS Gradient - 외부 이미지 의존 제거)
+const ARENA_BACKGROUND = 'linear-gradient(to bottom, #0a0015 0%, #1a0030 20%, #0d1b2a 45%, #1b2838 70%, #0f172a 100%)';
 
 export const ArcadeCanvas = ({ 
   playerChar, 
@@ -148,7 +148,7 @@ export const ArcadeCanvas = ({
   return (
     <div 
       className="relative w-full overflow-hidden rounded-xl border-4 border-amber-500/90 shadow-[0_0_40px_rgba(245,158,11,0.6)] bg-cover bg-center transition-all duration-500"
-      style={{ backgroundImage: URBAN_CITY_BACKGROUND }}
+      style={{ backgroundImage: ARENA_BACKGROUND }}
     >
       <canvas
         ref={canvasRef}
@@ -187,8 +187,8 @@ export const ArcadeCanvas = ({
                 />
               </div>
               <div className="flex gap-2 text-[9px] font-bold text-amber-400 tracking-tighter mt-0.5">
-                <span>BENIMARU</span>
-                <span>DAIMON</span>
+                <span>BENIMARO</span>
+                <span>DAIMOU</span>
               </div>
             </div>
           </div>
@@ -226,8 +226,8 @@ export const ArcadeCanvas = ({
                 />
               </div>
               <div className="flex justify-end gap-2 text-[9px] font-bold text-rose-400 tracking-tighter mt-0.5">
-                <span>MATURE</span>
-                <span>VICE</span>
+                <span>MATURO</span>
+                <span>VISE</span>
               </div>
             </div>
             <div 
@@ -421,11 +421,11 @@ function drawKof98SuperSpecialOverlay(ctx, w, h, char, combo) {
   ctx.shadowColor = '#f59e0b';
   ctx.shadowBlur = 35;
 
-  ctx.fillText(`🔥 MAX ${combo} COMBO KOF98 SUPER SPECIAL! 🔥`, w / 2, bannerY + 60);
+  ctx.fillText(`🔥 MAX ${combo} COMBO SUPER SPECIAL! 🔥`, w / 2, bannerY + 60);
 
   ctx.font = 'bold 22px sans-serif';
   ctx.fillStyle = '#fef08a';
-  ctx.fillText(`[${char.name}] 108식 대사치 / 팔치녀 초필살기 폭발!`, w / 2, bannerY + 98);
+  ctx.fillText(`[${char.name}] 108식 대사격 / 팔지녀 초필살기 폭발!`, w / 2, bannerY + 98);
 
   ctx.restore();
 }

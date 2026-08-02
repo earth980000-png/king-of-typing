@@ -1,8 +1,11 @@
-// Web Audio API 기반 아케이드 레트로 사운드 엔진
+// Web Audio API 기반 아케이드 레트로 사운드 엔진 + BGM 시스템
 
 class SoundEngine {
   constructor() {
     this.ctx = null;
+    this.isBGMPlaying = false;
+    this._bgmNodes = [];
+    this._bgmTimer = null;
   }
 
   init() {
@@ -60,7 +63,6 @@ class SoundEngine {
     this.init();
     const now = this.ctx.currentTime;
     
-    // Noise buffer for explosion explosion effect
     const bufferSize = this.ctx.sampleRate * 0.3;
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -155,12 +157,101 @@ class SoundEngine {
   // 뽑기 캡슐 오픈 사운드
   playGachaReveal(grade) {
     this.init();
-    const now = this.ctx.currentTime;
     if (grade === 'Legendary') {
       this.playSuperSpecial();
     } else {
       this.playComboChime(5);
     }
+  }
+
+  // ======== BGM 시스템 ========
+  startBGM() {
+    if (this.isBGMPlaying) return;
+    this.init();
+    this.isBGMPlaying = true;
+    this._playBGMLoop();
+  }
+
+  _playBGMLoop() {
+    if (!this.isBGMPlaying) return;
+    const now = this.ctx.currentTime;
+    const masterGain = this.ctx.createGain();
+    masterGain.gain.setValueAtTime(0.12, now);
+    masterGain.connect(this.ctx.destination);
+
+    // Bass line (aggressive square wave pattern)
+    const bassNotes = [55, 55, 65.41, 65.41, 73.42, 73.42, 65.41, 55];
+    bassNotes.forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, now + i * 0.5);
+      g.gain.setValueAtTime(0.35, now + i * 0.5);
+      g.gain.setValueAtTime(0.25, now + i * 0.5 + 0.2);
+      g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.5 + 0.48);
+      osc.connect(g);
+      g.connect(masterGain);
+      osc.start(now + i * 0.5);
+      osc.stop(now + i * 0.5 + 0.48);
+      this._bgmNodes.push(osc);
+    });
+
+    // Lead melody (aggressive sawtooth)
+    const melodyNotes = [220, 261.63, 293.66, 329.63, 349.23, 329.63, 293.66, 261.63,
+                         220, 246.94, 329.63, 392, 349.23, 293.66, 261.63, 220];
+    melodyNotes.forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, now + i * 0.25);
+      g.gain.setValueAtTime(0.15, now + i * 0.25);
+      g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.25 + 0.22);
+      osc.connect(g);
+      g.connect(masterGain);
+      osc.start(now + i * 0.25);
+      osc.stop(now + i * 0.25 + 0.23);
+      this._bgmNodes.push(osc);
+    });
+
+    // Percussion (noise hits on beats)
+    for (let i = 0; i < 8; i++) {
+      const bufSize = this.ctx.sampleRate * 0.06;
+      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let j = 0; j < bufSize; j++) d[j] = Math.random() * 2 - 1;
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buf;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 4000;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.3, now + i * 0.5);
+      g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.5 + 0.05);
+      noise.connect(filter);
+      filter.connect(g);
+      g.connect(masterGain);
+      noise.start(now + i * 0.5);
+      noise.stop(now + i * 0.5 + 0.06);
+      this._bgmNodes.push(noise);
+    }
+
+    // Loop every 4 seconds
+    this._bgmTimer = setTimeout(() => {
+      this._bgmNodes = [];
+      this._playBGMLoop();
+    }, 4000);
+  }
+
+  stopBGM() {
+    this.isBGMPlaying = false;
+    if (this._bgmTimer) {
+      clearTimeout(this._bgmTimer);
+      this._bgmTimer = null;
+    }
+    this._bgmNodes.forEach(node => {
+      try { node.stop(); } catch (e) {}
+    });
+    this._bgmNodes = [];
   }
 }
 

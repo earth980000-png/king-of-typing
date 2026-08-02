@@ -45,7 +45,7 @@ export const GachaModal = ({ isOpen, onClose, gold, onDeductGold, ownedCharIds, 
           origin: { y: 0.6 }
         });
       }
-    }, 1500);
+    }, 1200);
   };
 
   return (
@@ -81,22 +81,39 @@ export const GachaModal = ({ isOpen, onClose, gold, onDeductGold, ownedCharIds, 
               <p className="text-sm font-mono font-bold text-amber-300 uppercase tracking-widest">SPINNING CAPSULE...</p>
             </div>
           ) : revealedChar ? (
-            <div className="py-4 flex flex-col items-center animate-bounce">
+            <div className="py-2 flex flex-col items-center">
               <div 
-                className="w-24 h-24 rounded-full overflow-hidden border-4 mb-3 shadow-lg bg-slate-900"
+                className="w-20 h-20 rounded-full overflow-hidden border-4 mb-2 shadow-lg bg-slate-900"
                 style={{ borderColor: revealedChar.color }}
                 dangerouslySetInnerHTML={{ __html: revealedChar.avatarSvg || '' }}
               />
-              <span className={`text-[11px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-md mb-1 ${
+              <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md mb-1 ${
                 revealedChar.grade === 'Legendary' ? 'bg-rose-600 text-white animate-pulse' :
                 revealedChar.grade === 'Hidden' ? 'bg-purple-600 text-white' :
                 revealedChar.grade === 'Rare' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
               }`}>
                 {revealedChar.grade}
               </span>
-              <h3 className="text-2xl font-black text-white">{revealedChar.name}</h3>
+              <h3 className="text-xl font-black text-white">{revealedChar.name}</h3>
               <p className="text-xs text-amber-300 font-bold mt-0.5">{revealedChar.title}</p>
-              <p className="text-xs text-slate-400 font-semibold mt-1">{revealedChar.effectDesc}</p>
+              
+              {/* 연속 뽑기 버튼 */}
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={handleDraw}
+                  className="bg-[#f5a623] hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-6 py-2.5 rounded-lg shadow-[0_0_15px_rgba(245,166,35,0.4)] border border-yellow-200 transition-all transform hover:scale-105"
+                >
+                  한 번 더 뽑기! 🎁 (100G)
+                </button>
+                {equippedCharId !== revealedChar.id && (
+                  <button
+                    onClick={() => onEquipCharacter(revealedChar.id)}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition-all"
+                  >
+                    바로 장착 ⚔️
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="py-8 flex flex-col items-center">
@@ -117,7 +134,7 @@ export const GachaModal = ({ isOpen, onClose, gold, onDeductGold, ownedCharIds, 
           <span>CHARACTER COLLECTION</span>
           <span className="text-amber-400">({ownedCharIds.length} / {CHARACTERS.length} OWNED)</span>
         </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-52 overflow-y-auto pr-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-48 overflow-y-auto pr-1">
           {CHARACTERS.map((char) => {
             const isOwned = ownedCharIds.includes(char.id);
             const isEquipped = equippedCharId === char.id;
@@ -125,33 +142,32 @@ export const GachaModal = ({ isOpen, onClose, gold, onDeductGold, ownedCharIds, 
             return (
               <div 
                 key={char.id}
-                className={`p-3 rounded-xl border flex flex-col justify-between transition-all ${
+                className={`p-2.5 rounded-xl border flex flex-col justify-between transition-all ${
                   isEquipped ? 'bg-[#1a2130] border-[#f5a623] shadow-[0_0_12px_rgba(245,166,35,0.4)]' :
                   isOwned ? 'bg-[#141923] border-slate-800 hover:border-slate-700' : 'bg-[#080b10] border-slate-900 opacity-40'
                 }`}
               >
                 <div>
-                  <div className="flex justify-between items-center mb-1.5">
+                  <div className="flex justify-between items-center mb-1">
                     <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-black/80 text-slate-300 uppercase">
                       {char.grade}
                     </span>
                     {isEquipped && <span className="text-[9px] font-mono font-black text-[#f5a623]">EQUIPPED</span>}
                   </div>
                   
-                  <div className="w-12 h-12 rounded-full overflow-hidden mx-auto mb-2 border border-slate-800 bg-slate-950">
+                  <div className="w-10 h-10 rounded-full overflow-hidden mx-auto mb-1 border border-slate-800 bg-slate-950">
                     <div dangerouslySetInnerHTML={{ __html: char.avatarSvg || '' }} className="w-full h-full" />
                   </div>
 
-                  <div className="font-bold text-xs truncate text-center text-white mb-0.5">{char.name}</div>
-                  <div className="text-[10px] text-amber-400 text-center font-semibold mb-1">{char.title}</div>
-                  <div className="text-[9px] text-slate-400 text-center line-clamp-2">{char.effectDesc}</div>
+                  <div className="font-bold text-[11px] truncate text-center text-white">{char.name}</div>
+                  <div className="text-[9px] text-amber-400 text-center font-semibold">{char.title}</div>
                 </div>
 
                 {isOwned ? (
                   <button
                     disabled={isEquipped}
                     onClick={() => onEquipCharacter(char.id)}
-                    className={`mt-2 py-1 px-2 text-[11px] font-mono font-bold rounded transition-all ${
+                    className={`mt-2 py-1 px-2 text-[10px] font-mono font-bold rounded transition-all ${
                       isEquipped ? 'bg-[#f5a623] text-black' : 'bg-slate-800 hover:bg-amber-600 hover:text-white text-slate-200'
                     }`}
                   >

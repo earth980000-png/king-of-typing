@@ -19,14 +19,18 @@ export const TypingPanel = ({
     loadNewText(selectedSkill);
   }, [lang, selectedSkill]);
 
+  // 숫자 1, 2, 3 키 입력 시 스킬 변경 & 입력창에 1, 2, 3 누적 방지!
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (disabled) return;
       if (e.key === '1') {
+        e.preventDefault();
         onSkillSelect('word');
       } else if (e.key === '2') {
+        e.preventDefault();
         onSkillSelect('short');
       } else if (e.key === '3') {
+        e.preventDefault();
         onSkillSelect('long');
       }
     };
@@ -49,7 +53,16 @@ export const TypingPanel = ({
 
   const handleInputChange = (e) => {
     if (disabled) return;
-    const value = e.target.value;
+    let value = e.target.value;
+    
+    // 혹시라도 숫자 1, 2, 3이 들어간 경우 제거
+    if (value.endsWith('1') || value.endsWith('2') || value.endsWith('3')) {
+      const lastChar = value.slice(-1);
+      if (['1', '2', '3'].includes(lastChar)) {
+        value = value.slice(0, -1);
+      }
+    }
+
     const now = Date.now();
 
     if (!startTime && value.length > 0) {
@@ -74,7 +87,7 @@ export const TypingPanel = ({
     }
 
     if (value === targetText) {
-      const finalCpm = cpm || 250;
+      const finalCpm = cpm || 280;
       onAttack({
         type: selectedSkill,
         cpm: finalCpm,
@@ -112,7 +125,7 @@ export const TypingPanel = ({
           }`}
         >
           <span className="bg-black/40 text-orange-300 px-1.5 py-0.5 rounded font-mono text-[11px]">[2]</span>
-          <span className="uppercase tracking-wider">짧은 문장 (중공격)</span>
+          <span className="uppercase tracking-wider">짧은 문장 (중공격 ↑)</span>
         </button>
 
         <button
@@ -125,7 +138,7 @@ export const TypingPanel = ({
           }`}
         >
           <span className="bg-black/40 text-rose-300 px-1.5 py-0.5 rounded font-mono text-[11px]">[3]</span>
-          <span className="uppercase tracking-wider">긴 문장 (강공격)</span>
+          <span className="uppercase tracking-wider">긴 문장 (강공격 ★대폭버프)</span>
         </button>
       </div>
 
@@ -162,14 +175,14 @@ export const TypingPanel = ({
         />
       </div>
 
-      {/* Stats Bar (Modal-style Mono Typography) */}
+      {/* Stats Bar */}
       <div className="flex justify-between items-center px-2 text-xs font-mono font-bold text-slate-400">
         <div className="flex gap-5">
           <span className="text-amber-400">SPEED: <strong className="text-sm text-white font-sans">{cpm}</strong> CPM</span>
           <span className="text-emerald-400">ACCURACY: <strong className="text-sm text-white font-sans">{accuracy}%</strong></span>
         </div>
         <span className="text-slate-500 text-[11px] uppercase tracking-wider">
-          TYPING TRIGGERS ATTACK INSTANTLY
+          NUM KEYS CHOOSE ATTACK MODE
         </span>
       </div>
     </div>

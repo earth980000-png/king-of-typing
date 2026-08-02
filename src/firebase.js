@@ -2,12 +2,14 @@ import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   GoogleAuthProvider, 
-  signInWithPopup, 
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signInAnonymously, 
   onAuthStateChanged,
   signOut 
 } from "firebase/auth";
-import { getDatabase, ref, set, get, child, onValue, push, remove } from "firebase/database";
+import { getDatabase, ref, set, get, child, onValue, push, remove, query, orderByChild, limitToLast } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC8yRjTbV40kxAxKWtVunKBes5iUQsuuvQ",
@@ -31,7 +33,6 @@ try {
   console.warn("Firebase initialized in fallback mode:", error);
 }
 
-// 안전한 인증 상태 수신
 export const subscribeAuthState = (callback) => {
   if (isFirebaseConfigured && auth) {
     return onAuthStateChanged(auth, callback);
@@ -39,11 +40,29 @@ export const subscribeAuthState = (callback) => {
   return () => {};
 };
 
-// 사용자별 개별 프로필 데이터 동기화 (유저 격리)
+export const checkRedirectResult = async () => {
+  if (!isFirebaseConfigured || !auth) return null;
+  try {
+    const result = await getRedirectResult(auth);
+    if (result && result.user) {
+      return result.user;
+    }
+  } catch (err) {
+    console.error("Redirect result error:", err.code, err.message);
+  }
+  return null;
+};
+
+// 사용자별 개별 데이터 동기화 (골드, 캐릭터, 최고 CPM 보존)
 export const saveUserData = async (uid, data) => {
   if (isFirebaseConfigured && db && uid) {
     try {
-      await set(ref(db, `users/${uid}`), {
+      const userRef = ref(db, `users/${uid}`);
+      const snapshot = await get(userRef);
+      const existing = snapshot.exists() ? snapshot.val() : {};
+
+      await set(userRef, {
+        ...existing,
         ...data,
         updatedAt: Date.now()
       });
@@ -67,20 +86,57 @@ export const loadUserData = async (uid) => {
   return null;
 };
 
-// 구글 로그인
+// 명예의 전당 (리더보드) 조회
+export const getLeaderboard = async () => {
+  if (isFirebaseConfigured && db) {
+    try {
+      const snapshot = await get(child(ref(db), 'users'));
+      if (snapshot.exists()) {
+        const usersObj = snapshot.val();
+        const list = Object.keys(usersObj).map(key => ({
+          uid: key,
+          name: usersObj[key].displayName || '무명 격투가',
+          maxCpm: usersObj[key].maxCpm || 0,
+          equippedCharId: usersObj[key].equippedCharId || 'kyo'
+        }));
+        // CPM 내림차순 정렬
+        list.sort((a, b) => b.maxCpm - a.maxCpm);
+        return list.slice(0, 10);
+      }
+    } catch (err) {
+      console.error("Get Leaderboard Error:", err);
+    }
+  }
+  return [
+    { name: "쿠사나리 큐", maxCpm: 680, equippedCharId: "kyo" },
+    { name: "야가리 이오리", maxCpm: 620, equippedCharId: "iori" },
+    { name: "테리 보가로", maxCpm: 550, equippedCharId: "terry" },
+    { name: "백열각 춘리", maxCpm: 490, equippedCharId: "chunli" }
+  ];
+};
+
 export const loginWithGoogle = async () => {
-  if (!isFirebaseConfigured || !auth) return mockLogin("Google");
+  if (!isFirebaseConfigured || !auth) return mockLogin("Google Player");
+  
   const provider = new GoogleAuthProvider();
+  
   try {
     const result = await signInWithPopup(auth, provider);
     return result.user;
   } catch (err) {
-    console.error("Google Auth Error:", err);
-    return mockLogin("Google User");
+    console.error("Google Auth Popup Error:", err.code, err.message);
+    if (err.code === 'auth/unauthorized-domain' || err.code === 'auth/popup-blocked') {
+      try {
+        await signInWithRedirect(auth, provider);
+        return null;
+      } catch (redirectErr) {
+        console.error("Redirect failed:", redirectErr);
+      }
+    }
+    return mockLogin("Google Player");
   }
 };
 
-// 익명 로그인
 export const loginAnonymously = async () => {
   if (!isFirebaseConfigured || !auth) return mockLogin("Guest Player");
   try {
@@ -92,7 +148,6 @@ export const loginAnonymously = async () => {
   }
 };
 
-// 로그아웃
 export const logoutUser = async () => {
   if (isFirebaseConfigured && auth) {
     await signOut(auth);
