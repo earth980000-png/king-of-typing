@@ -1,5 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+// KOF 실사풍 고화질 무대 배경 (Photographic Stage Data)
+const STAGE_BACKGROUNDS = {
+  1: 'linear-gradient(rgba(15, 23, 42, 0.6), rgba(2, 6, 23, 0.8)), url("https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop")', // 아시안 한옥 밤 배경
+  3: 'linear-gradient(rgba(15, 23, 42, 0.5), rgba(2, 6, 23, 0.7)), url("https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop")', // 네온 서버펑크 도장
+  5: 'linear-gradient(rgba(15, 23, 42, 0.5), rgba(2, 6, 23, 0.8)), url("https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop")', // 아케이드 스타디움
+  7: 'linear-gradient(rgba(69, 10, 10, 0.6), rgba(15, 23, 42, 0.9)), url("https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop")'  // 보스 붉은 화열 성채
+};
+
 export const ArcadeCanvas = ({ 
   playerChar, 
   enemyChar, 
@@ -36,12 +44,12 @@ export const ArcadeCanvas = ({
     let screenShake = 0;
 
     const addHitParticles = (x, y, color = "#fef08a") => {
-      for (let i = 0; i < 35; i++) {
+      for (let i = 0; i < 40; i++) {
         particles.push({
           x,
           y,
-          vx: (Math.random() - 0.5) * 22,
-          vy: (Math.random() - 0.5) * 22,
+          vx: (Math.random() - 0.5) * 24,
+          vy: (Math.random() - 0.5) * 24,
           radius: Math.random() * 8 + 3,
           color,
           alpha: 1,
@@ -49,21 +57,21 @@ export const ArcadeCanvas = ({
         });
       }
       hitTexts.push({
-        x: x + (Math.random() - 0.5) * 40,
-        y: y - 20,
-        text: `HIT! +${combo * 10 || 10}`,
+        x: x + (Math.random() - 0.5) * 50,
+        y: y - 30,
+        text: `HIT! +${combo * 15 || 15}`,
         alpha: 1,
-        vy: -2
+        vy: -2.5
       });
     };
 
     if (playerAction === 'punch' || playerAction === 'kick' || playerAction === 'fireball') {
-      screenShake = playerAction === 'fireball' ? 20 : 10;
-      addHitParticles(560, 210, playerChar.color || '#f59e0b');
+      screenShake = playerAction === 'fireball' ? 22 : 12;
+      addHitParticles(560, 200, playerChar.color || '#f59e0b');
     }
     if (enemyAction === 'punch' || enemyAction === 'kick' || enemyAction === 'fireball') {
-      screenShake = 12;
-      addHitParticles(240, 210, enemyChar.color || '#ef4444');
+      screenShake = 14;
+      addHitParticles(240, 200, enemyChar.color || '#ef4444');
     }
 
     let tick = 0;
@@ -81,21 +89,21 @@ export const ArcadeCanvas = ({
         if (screenShake < 0.5) screenShake = 0;
       }
 
-      // 1. KOF 98 부산/한국 한옥 도장 스테이지 렌더링
-      drawKof98Stage(ctx, canvas.width, canvas.height, stage);
+      // 1. KOF 98 실사풍 무대 링 바닥 & 그림자 렌더링
+      drawRealisticStageFloor(ctx, canvas.width, canvas.height, stage);
 
-      // 2. KOF 98 오리지널 쿄 & 이오리 레트로 픽셀 스프라이트 렌더링
+      // 2. 실사화 격투가 스프라이트 & GIF 모션 렌더링
       const p1X = 220;
       const p2X = 580;
-      const groundY = 280;
+      const groundY = 275;
 
-      // Player 1 Fighter
-      drawKof98FighterSprite(ctx, p1X, groundY, playerChar, playerAction, false, tick, combo);
+      // P1 Fighter
+      drawRealisticFighterSprite(ctx, p1X, groundY, playerChar, playerAction, false, tick, combo);
 
-      // Player 2 / AI Enemy Fighter
-      drawKof98FighterSprite(ctx, p2X, groundY, enemyChar, enemyAction, true, tick, 0);
+      // P2 Enemy Fighter
+      drawRealisticFighterSprite(ctx, p2X, groundY, enemyChar, enemyAction, true, tick, 0);
 
-      // 3. 힛스파크 파티클 & 타격 데미지 팝업
+      // 3. 타격 파티클 & 힛스파크
       particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
@@ -112,23 +120,23 @@ export const ArcadeCanvas = ({
       });
       particles = particles.filter(p => p.alpha > 0);
 
-      // Hit Text Popup
+      // Hit Text Popups
       hitTexts.forEach(ht => {
         ht.y += ht.vy;
         ht.alpha -= 0.03;
         ctx.save();
         ctx.globalAlpha = Math.max(0, ht.alpha);
-        ctx.font = '900 24px impact, sans-serif';
+        ctx.font = '900 26px impact, sans-serif';
         ctx.fillStyle = '#fde047';
         ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 5;
         ctx.strokeText(ht.text, ht.x, ht.y);
         ctx.fillText(ht.text, ht.x, ht.y);
         ctx.restore();
       });
       hitTexts = hitTexts.filter(ht => ht.alpha > 0);
 
-      // 4. 5콤보 달성 시 KOF 98 대사치 / 초필살기 암전
+      // 4. 5콤보 달성 시 KOF 98 대사치 초필살기 암전
       if (isSuperMoveActive) {
         drawKof98SuperSpecialOverlay(ctx, canvas.width, canvas.height, playerChar, combo);
       }
@@ -142,13 +150,18 @@ export const ArcadeCanvas = ({
     return () => cancelAnimationFrame(animationFrameId);
   }, [playerAction, enemyAction, isSuperMoveActive, stage, combo, playerChar.id, enemyChar.id, playerChar, enemyChar]);
 
+  const bgStyle = STAGE_BACKGROUNDS[stage] || STAGE_BACKGROUNDS[1];
+
   return (
-    <div className="relative w-full overflow-hidden rounded-xl border-4 border-amber-500/90 shadow-[0_0_40px_rgba(245,158,11,0.6)] bg-black">
+    <div 
+      className="relative w-full overflow-hidden rounded-xl border-4 border-amber-500/90 shadow-[0_0_40px_rgba(245,158,11,0.6)] bg-cover bg-center transition-all duration-500"
+      style={{ backgroundImage: bgStyle }}
+    >
       <canvas
         ref={canvasRef}
         width={800}
         height={360}
-        className="w-full h-auto bg-slate-950 block"
+        className="w-full h-auto block bg-transparent"
       />
 
       {/* 🥊 KOF 98 오리지널 100% 복각 HUD UI 🥊 */}
@@ -169,7 +182,7 @@ export const ArcadeCanvas = ({
           <div className="flex items-center gap-1.5">
             {/* Kyo Portrait Avatar Box */}
             <div 
-              className="w-11 h-11 border-2 border-white rounded bg-slate-900 overflow-hidden shrink-0 shadow-[0_0_8px_#ffffff]"
+              className="w-11 h-11 border-2 border-white rounded bg-slate-900 overflow-hidden shrink-0 shadow-[0_0_10px_#ffffff]"
               dangerouslySetInnerHTML={{ __html: playerChar.avatarSvg || '' }}
             />
             {/* Green / Yellow KOF 98 Bar */}
@@ -180,7 +193,6 @@ export const ArcadeCanvas = ({
                   style={{ width: `${Math.max(0, (playerHp / maxPlayerHp) * 100)}%` }}
                 />
               </div>
-              {/* KOF 98 Team Roster Text */}
               <div className="flex gap-2 text-[9px] font-bold text-amber-400 tracking-tighter mt-0.5">
                 <span>BENIMARU</span>
                 <span>DAIMON</span>
@@ -203,7 +215,6 @@ export const ArcadeCanvas = ({
 
         {/* Player 2 / Enemy KOF 98 Bar */}
         <div className="w-[340px] text-right">
-          {/* CHALLENGER! & Name */}
           <div className="flex items-center justify-between mb-0.5 px-1">
             <span className="text-xs font-black italic text-yellow-300 tracking-wider">
               {enemyChar.name}
@@ -213,7 +224,6 @@ export const ArcadeCanvas = ({
             </span>
           </div>
 
-          {/* KOF 98 Health Bar */}
           <div className="flex items-center gap-1.5">
             <div className="flex-1">
               <div className="w-full h-5 bg-black border-2 border-white rounded-sm overflow-hidden p-0.5 shadow-inner">
@@ -227,9 +237,8 @@ export const ArcadeCanvas = ({
                 <span>VICE</span>
               </div>
             </div>
-            {/* Iori Portrait Avatar Box */}
             <div 
-              className="w-11 h-11 border-2 border-white rounded bg-slate-900 overflow-hidden shrink-0 shadow-[0_0_8px_#ffffff]"
+              className="w-11 h-11 border-2 border-white rounded bg-slate-900 overflow-hidden shrink-0 shadow-[0_0_10px_#ffffff]"
               dangerouslySetInnerHTML={{ __html: enemyChar.avatarSvg || '' }}
             />
           </div>
@@ -258,214 +267,131 @@ export const ArcadeCanvas = ({
   );
 };
 
-// KOF 98 한국/부산 스테이지 배경 렌더링
-function drawKof98Stage(ctx, w, h, stage) {
-  // 하늘 그라데이션
-  const sky = ctx.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, '#1e3a8a');
-  sky.addColorStop(0.5, '#3b82f6');
-  sky.addColorStop(1, '#93c5fd');
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, w, h);
+// 바닥 반사 그림자 & 무대 링
+function drawRealisticStageFloor(ctx, w, h, stage) {
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+  ctx.fillRect(0, 260, w, h - 260);
 
-  // 원경 산 & 기와지붕 한옥 배경
-  ctx.fillStyle = '#1e293b';
-  ctx.beginPath();
-  ctx.moveTo(0, 180);
-  ctx.lineTo(120, 140);
-  ctx.lineTo(250, 180);
-  ctx.lineTo(400, 130);
-  ctx.lineTo(600, 180);
-  ctx.lineTo(720, 140);
-  ctx.lineTo(w, 180);
-  ctx.lineTo(w, 240);
-  ctx.lineTo(0, 240);
-  ctx.fill();
-
-  // KOF 98 부산 나룻배 & 기와집 상점 간판 렌더링
-  ctx.fillStyle = '#b45309';
-  ctx.fillRect(80, 160, 100, 40);
-  ctx.fillStyle = '#78350f';
-  ctx.fillRect(70, 150, 120, 12); // 기와 지붕
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 12px sans-serif';
-  ctx.fillText("맛집", 110, 185);
-
-  // 바다 & 부두 데크 바닥
-  ctx.fillStyle = '#0284c7';
-  ctx.fillRect(0, 220, w, 40);
-
-  // KOF 98 부두 무대 바닥 (나무 데크)
-  ctx.fillStyle = '#78350f';
-  ctx.fillRect(0, 255, w, h - 255);
-
-  // 바닥 텍스처 패널 라인
-  ctx.strokeStyle = '#451a03';
+  ctx.strokeStyle = stage === 7 ? '#f43f5e' : '#f59e0b';
   ctx.lineWidth = 3;
-  for (let x = 0; x < w; x += 30) {
-    ctx.beginPath();
-    ctx.moveTo(x, 255);
-    ctx.lineTo(x, h);
-    ctx.stroke();
-  }
+  ctx.beginPath();
+  ctx.moveTo(0, 260);
+  ctx.lineTo(w, 260);
+  ctx.stroke();
+
+  // 바닥 그림자
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.ellipse(220, 275, 45, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.ellipse(580, 275, 45, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
 }
 
-// KOF 98 오리지널 쿄(KYO) & 이오리(IORI) 100% 픽셀 아트 복각 스프라이트
-function drawKof98FighterSprite(ctx, x, y, char, action, isFlip, tick, combo) {
+// 실사화 격투가 GIF 애니메이션 스프라이트 렌더링 (Real Fighter Rendering Engine)
+function drawRealisticFighterSprite(ctx, x, y, char, action, isFlip, tick, combo) {
   ctx.save();
   ctx.translate(x, y);
   if (isFlip) ctx.scale(-1, 1);
 
-  const bounceY = Math.sin(tick * 0.18) * 3;
+  // 대기 시 GIF처럼 들썩이는 애니메이션 (Idle Swaying Animation)
+  const idleY = Math.sin(tick * 0.16) * 4;
+  const idleRotate = Math.sin(tick * 0.1) * 0.03;
+  ctx.rotate(idleRotate);
+
   const charId = char.id || 'kyo';
 
-  // 1. KOF 98 KYO KUSANAGI (쿠사나기 쿄)
-  if (charId === 'kyo' || charId === 'god_kyo') {
-    // KOF 98 쿄 고유 대기 포즈 (무릎 굽히고 손 주먹 바깥 향함)
-    const stanceShiftX = Math.sin(tick * 0.12) * 2;
-
-    // 신발 / 부츠 (흰색 무술화)
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-22 + stanceShiftX, -10 + bounceY, 14, 10);
-    ctx.fillRect(8 + stanceShiftX, -10 + bounceY, 14, 10);
-
-    // 바지 (검은 가죽/교복 바지)
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(-20 + stanceShiftX, -48 + bounceY, 16, 40);
-    ctx.fillRect(6 + stanceShiftX, -48 + bounceY, 16, 40);
-
-    // 가죽 자켓 & 흰 티셔츠 (KOF98 쿄 시그니처 상의)
-    ctx.fillStyle = '#ffffff'; // 안쪽 흰 티
-    ctx.fillRect(-16 + stanceShiftX, -90 + bounceY, 32, 45);
-
-    ctx.fillStyle = '#1e293b'; // 검은 가죽 교복 자켓
-    ctx.fillRect(-24 + stanceShiftX, -95 + bounceY, 12, 48);
-    ctx.fillRect(12 + stanceShiftX, -95 + bounceY, 12, 48);
-
-    // K의 금색 가문 문양
-    ctx.fillStyle = '#f59e0b';
-    ctx.fillRect(-4 + stanceShiftX, -85 + bounceY, 8, 8);
-
-    // 머리 (KOF 98 쿄 - 하얀 머리띠 + 가르마 머리칼)
-    ctx.fillStyle = '#fde047'; // 피부
-    ctx.beginPath(); ctx.arc(0 + stanceShiftX, -112 + bounceY, 16, 0, Math.PI * 2); ctx.fill();
-
-    ctx.fillStyle = '#0f172a'; // 머리칼
-    ctx.beginPath(); ctx.arc(0 + stanceShiftX, -118 + bounceY, 18, Math.PI, 0); ctx.fill();
-
-    // 하얀 머리띠 (KOF98 KYO SIGNATURE)
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-17 + stanceShiftX, -116 + bounceY, 34, 6);
-
-    // 눈빛
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(4 + stanceShiftX, -112 + bounceY, 4, 3);
-
-    // 팔 & 연속 콤보 동작 연출
-    if (action === 'punch' || action === 'fireball' || action === 'kick') {
-      // 콤보 수에 따른 3단 화염 연속기 (108식 황물기 / 독물기 / 귀신태우기)
-      if (combo >= 3) {
-        // 황물기 3연타 화염 궤적
-        ctx.fillStyle = '#fde047';
-        ctx.fillRect(8 + stanceShiftX, -90 + bounceY, 50, 14);
-
-        // KOF 화염 이펙트
-        ctx.save();
-        ctx.fillStyle = '#ea580c';
-        ctx.shadowColor = '#f59e0b';
-        ctx.shadowBlur = 25;
-        ctx.beginPath();
-        ctx.arc(65 + stanceShiftX, -83 + bounceY, 28, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fef08a';
-        ctx.beginPath();
-        ctx.arc(65 + stanceShiftX, -83 + bounceY, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      } else {
-        // 기본 펀치
-        ctx.fillStyle = '#fde047';
-        ctx.fillRect(8 + stanceShiftX, -88 + bounceY, 45, 12);
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(50 + stanceShiftX, -90 + bounceY, 10, 16);
-      }
-    } else {
-      // 대기 자세 팔
-      ctx.fillStyle = '#fde047';
-      ctx.fillRect(10 + stanceShiftX, -88 + bounceY, 18, 30);
-    }
-  } 
-  // 2. KOF 98 IORI YAGAMI (야가미 이오리)
-  else if (charId === 'iori' || charId === 'orochi_iori') {
-    // KOF 98 이오리 고유 야성적 대기 포즈 (약간 숙이고 붉은 머리 덮임)
-    const stanceShiftX = -Math.sin(tick * 0.15) * 3;
-
-    // 붉은 바지 & 묶여있는 바지 가죽끈 (KOF98 IORI SIGNATURE)
-    ctx.fillStyle = '#dc2626';
-    ctx.fillRect(-22 + stanceShiftX, -48 + bounceY, 18, 40);
-    ctx.fillRect(4 + stanceShiftX, -48 + bounceY, 18, 40);
-
-    // 바지 사이 붉은 벨트 가죽끈
-    ctx.strokeStyle = '#450a0a';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(-10 + stanceShiftX, -30 + bounceY);
-    ctx.lineTo(10 + stanceShiftX, -30 + bounceY);
-    ctx.stroke();
-
-    // 네이비 셔츠 & 흰 깃 (KOF98 이오리 상의)
-    ctx.fillStyle = '#1e1b4b';
-    ctx.fillRect(-24 + stanceShiftX, -95 + bounceY, 48, 50);
-
-    ctx.fillStyle = '#ffffff'; // 흰 깃
-    ctx.beginPath();
-    ctx.moveTo(-15 + stanceShiftX, -95 + bounceY);
-    ctx.lineTo(0 + stanceShiftX, -70 + bounceY);
-    ctx.lineTo(15 + stanceShiftX, -95 + bounceY);
-    ctx.fill();
-
-    // 머리 (KOF 98 이오리 - 야성적인 붉은 롱 헤어)
-    ctx.fillStyle = '#fef08a'; // 피부
-    ctx.beginPath(); ctx.arc(0 + stanceShiftX, -110 + bounceY, 16, 0, Math.PI * 2); ctx.fill();
-
-    // 붉은 길게 덮인 머리칼
-    ctx.fillStyle = '#dc2626';
-    ctx.beginPath();
-    ctx.arc(-2 + stanceShiftX, -115 + bounceY, 20, Math.PI * 0.8, Math.PI * 2.2);
-    ctx.fill();
-    ctx.fillRect(2 + stanceShiftX, -120 + bounceY, 12, 24); // 앞으로 쏠린 붉은 앞머리
-
-    // 팔 & 자색 화염 어둠쫓기 콤보 연출
-    if (action === 'punch' || action === 'fireball' || action === 'kick') {
-      ctx.fillStyle = '#fef08a';
-      ctx.fillRect(8 + stanceShiftX, -92 + bounceY, 50, 14);
-
-      // KOF 자색/보라 화염 이펙트 (어둠쫓기 / 팔치녀)
-      ctx.save();
-      ctx.fillStyle = '#a855f7';
-      ctx.shadowColor = '#c084fc';
-      ctx.shadowBlur = 30;
-      ctx.beginPath();
-      ctx.arc(65 + stanceShiftX, -85 + bounceY, 26, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(65 + stanceShiftX, -85 + bounceY, 12, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    } else {
-      ctx.fillStyle = '#fef08a';
-      ctx.fillRect(8 + stanceShiftX, -88 + bounceY, 18, 30);
-    }
+  // 1. 샌드백 로봇
+  if (charId === 'sandbag') {
+    ctx.fillStyle = '#64748b';
+    ctx.beginPath(); ctx.roundRect(-22, -90 + idleY, 44, 75, 12); ctx.fill();
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath(); ctx.arc(0, -65 + idleY, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    return;
   }
-  // 3. 기타 캐릭터 범용 KOF 렌더러
-  else {
-    ctx.fillStyle = char.color || '#3b82f6';
-    ctx.fillRect(-20, -90 + bounceY, 40, 48);
-    ctx.fillStyle = char.secondaryColor || '#1e293b';
-    ctx.fillRect(-18, -42 + bounceY, 36, 35);
+
+  // 2. 실사풍 쿄 / 이오리 / 격투가 인물 렌더링
+  let bodyColor = char.color || '#f59e0b';
+  let pantsColor = char.secondaryColor || '#1e293b';
+
+  if (charId === 'iori' || charId === 'orochi_iori') {
+    bodyColor = '#881337';
+    pantsColor = '#dc2626';
+  } else if (charId === 'chunli') {
+    bodyColor = '#2563eb';
+    pantsColor = '#1d4ed8';
+  } else if (charId === 'terry') {
+    bodyColor = '#dc2626';
+    pantsColor = '#1e3a8a';
+  }
+
+  // 실사 다리 & 부츠
+  if (action === 'kick') {
+    ctx.fillStyle = pantsColor;
+    ctx.beginPath(); ctx.roundRect(-16, -45 + idleY, 18, 45, 4); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(-5, -65 + idleY, 70, 20, 6); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.roundRect(60, -67 + idleY, 20, 24, 4); ctx.fill();
+
+    // 발차기 이펙트
+    ctx.strokeStyle = bodyColor;
+    ctx.lineWidth = 8;
+    ctx.beginPath(); ctx.arc(40, -52 + idleY, 45, -0.4, 0.4); ctx.stroke();
+  } else {
+    ctx.fillStyle = pantsColor;
+    ctx.beginPath(); ctx.roundRect(-22, -45 + idleY, 18, 45, 4); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(4, -45 + idleY, 18, 45, 4); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-20, -48 + idleY, 40, 5);
+  }
+
+  // 실사 상체 & 재킷
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath(); ctx.roundRect(-26, -98 + idleY, 52, 54, 8); ctx.fill();
+
+  // 음영 디테일
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  ctx.fillRect(-20, -85 + idleY, 10, 40);
+
+  // 실사 얼굴 & 헤어
+  ctx.fillStyle = '#fde047'; // skin
+  ctx.beginPath(); ctx.arc(0, -114 + idleY, 16, 0, Math.PI * 2); ctx.fill();
+
+  // 머리칼 (쿄: 가르마 / 이오리: 붉은 앞머리)
+  ctx.fillStyle = charId === 'iori' || charId === 'orochi_iori' ? '#dc2626' : '#0f172a';
+  ctx.beginPath(); ctx.arc(0, -120 + idleY, 19, Math.PI, 0); ctx.fill();
+
+  if (charId === 'kyo' || charId === 'god_kyo') {
+    // 쿄 머리띠
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-18, -118 + idleY, 36, 6);
+  }
+
+  // 눈
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(4, -114 + idleY, 4, 3);
+
+  // 팔 & 콤보 연출
+  if (action === 'punch' || action === 'fireball' || action === 'kick') {
     ctx.fillStyle = '#fde047';
-    ctx.beginPath(); ctx.arc(0, -108 + bounceY, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(8, -92 + idleY, 55, 16, 5); ctx.fill();
+
+    // 콤보 화염 이펙트 (KOF 98 대사치 / 황물기)
+    ctx.save();
+    ctx.fillStyle = charId === 'iori' ? '#a855f7' : '#ea580c';
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 30;
+    ctx.beginPath();
+    ctx.arc(68, -84 + idleY, 28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(68, -84 + idleY, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  } else {
+    ctx.fillStyle = '#fde047';
+    ctx.beginPath(); ctx.roundRect(8, -90 + idleY, 20, 32, 5); ctx.fill();
   }
 
   ctx.restore();
@@ -474,7 +400,7 @@ function drawKof98FighterSprite(ctx, x, y, char, action, isFlip, tick, combo) {
 // 5콤보 KOF 98 초필살기 암전
 function drawKof98SuperSpecialOverlay(ctx, w, h, char, combo) {
   ctx.save();
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.94)';
   ctx.fillRect(0, 0, w, h);
 
   const bannerY = 110;
@@ -498,13 +424,13 @@ function drawKof98SuperSpecialOverlay(ctx, w, h, char, combo) {
   ctx.fillStyle = '#ffffff';
   ctx.textAlign = 'center';
   ctx.shadowColor = '#f59e0b';
-  ctx.shadowBlur = 30;
+  ctx.shadowBlur = 35;
 
   ctx.fillText(`🔥 MAX ${combo} COMBO KOF98 SUPER SPECIAL! 🔥`, w / 2, bannerY + 60);
 
   ctx.font = 'bold 22px sans-serif';
   ctx.fillStyle = '#fef08a';
-  ctx.fillText(`[${char.name}] 108식 대사치 / 팔치녀 초필살기 쇄도!`, w / 2, bannerY + 98);
+  ctx.fillText(`[${char.name}] 108식 대사치 / 팔치녀 초필살기 폭발!`, w / 2, bannerY + 98);
 
   ctx.restore();
 }
