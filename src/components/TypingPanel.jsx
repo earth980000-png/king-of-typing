@@ -15,12 +15,10 @@ export const TypingPanel = ({
   const [accuracy, setAccuracy] = useState(100);
   const inputRef = useRef(null);
 
-  // 언어 및 선택된 스킬 변경 시 새로운 문제 출제
   useEffect(() => {
     loadNewText(selectedSkill);
   }, [lang, selectedSkill]);
 
-  // 키보드 1, 2, 3 누를 시 스킬 전환 및 텍스트 자동 로딩
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (disabled) return;
@@ -60,7 +58,6 @@ export const TypingPanel = ({
 
     setInputText(value);
 
-    // 타수(CPM) & 정확도 계산
     if (startTime && value.length > 0) {
       const elapsedSec = (now - startTime) / 1000;
       if (elapsedSec > 0) {
@@ -68,7 +65,6 @@ export const TypingPanel = ({
         setCpm(calculatedCpm);
       }
 
-      // 정확도 산출
       let correctChars = 0;
       for (let i = 0; i < value.length; i++) {
         if (value[i] === targetText[i]) correctChars++;
@@ -77,71 +73,69 @@ export const TypingPanel = ({
       setAccuracy(isNaN(acc) ? 100 : acc);
     }
 
-    // 완전히 정확하게 문장/단어를 완성했을 때 즉시 공격 발동!
     if (value === targetText) {
       const finalCpm = cpm || 250;
       onAttack({
-        type: selectedSkill, // 'word' (약), 'short' (중), 'long' (강)
+        type: selectedSkill,
         cpm: finalCpm,
         accuracy: 100,
         text: targetText
       });
-      // 공격 후 다음 문장 자동 출제
       loadNewText(selectedSkill);
     }
   };
 
   return (
-    <div className="w-full bg-slate-900/90 border-2 border-amber-500/60 rounded-xl p-4 shadow-xl backdrop-blur-md">
-      {/* 1번 / 2번 / 3번 스킬 선택버튼 Bar */}
-      <div className="flex gap-2 mb-3">
+    <div className="w-full bg-[#0c1017] border border-amber-500/30 rounded-xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      {/* Modal Style Skill Selector Bar */}
+      <div className="flex gap-3 mb-4">
         <button
           type="button"
           onClick={() => onSkillSelect('word')}
-          className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 border ${
+          className={`flex-1 py-2.5 px-4 rounded-lg font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 border ${
             selectedSkill === 'word'
-              ? 'bg-amber-500 text-slate-950 border-yellow-300 shadow-[0_0_12px_#f59e0b]'
-              : 'bg-slate-800 text-amber-400 border-slate-700 hover:bg-slate-700'
+              ? 'bg-[#f5a623] text-black border-[#facc15] shadow-[0_0_15px_rgba(245,166,35,0.4)]'
+              : 'bg-[#141923] text-amber-400 border-slate-800 hover:bg-[#1a2130]'
           }`}
         >
-          <span className="bg-slate-950 text-amber-300 px-2 py-0.5 rounded text-xs">1번</span>
-          <span>단어 (약공격)</span>
+          <span className="bg-black/40 text-amber-300 px-1.5 py-0.5 rounded font-mono text-[11px]">[1]</span>
+          <span className="uppercase tracking-wider">단어 (약공격)</span>
         </button>
 
         <button
           type="button"
           onClick={() => onSkillSelect('short')}
-          className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 border ${
+          className={`flex-1 py-2.5 px-4 rounded-lg font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 border ${
             selectedSkill === 'short'
-              ? 'bg-orange-500 text-slate-950 border-orange-300 shadow-[0_0_12px_#f97316]'
-              : 'bg-slate-800 text-orange-400 border-slate-700 hover:bg-slate-700'
+              ? 'bg-[#f97316] text-black border-[#fdba74] shadow-[0_0_15px_rgba(249,115,22,0.4)]'
+              : 'bg-[#141923] text-orange-400 border-slate-800 hover:bg-[#1a2130]'
           }`}
         >
-          <span className="bg-slate-950 text-orange-300 px-2 py-0.5 rounded text-xs">2번</span>
-          <span>짧은 문장 (중공격)</span>
+          <span className="bg-black/40 text-orange-300 px-1.5 py-0.5 rounded font-mono text-[11px]">[2]</span>
+          <span className="uppercase tracking-wider">짧은 문장 (중공격)</span>
         </button>
 
         <button
           type="button"
           onClick={() => onSkillSelect('long')}
-          className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 border ${
+          className={`flex-1 py-2.5 px-4 rounded-lg font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 border ${
             selectedSkill === 'long'
-              ? 'bg-rose-600 text-white border-rose-400 shadow-[0_0_12px_#f43f5e]'
-              : 'bg-slate-800 text-rose-400 border-slate-700 hover:bg-slate-700'
+              ? 'bg-[#f43f5e] text-white border-[#fda4af] shadow-[0_0_15px_rgba(244,63,94,0.4)]'
+              : 'bg-[#141923] text-rose-400 border-slate-800 hover:bg-[#1a2130]'
           }`}
         >
-          <span className="bg-slate-950 text-rose-300 px-2 py-0.5 rounded text-xs">3번</span>
-          <span>긴 문장 (강공격)</span>
+          <span className="bg-black/40 text-rose-300 px-1.5 py-0.5 rounded font-mono text-[11px]">[3]</span>
+          <span className="uppercase tracking-wider">긴 문장 (강공격)</span>
         </button>
       </div>
 
-      {/* 타자 대상 문장 표시 (한컴 타자연습 스타일) */}
-      <div className="bg-slate-950 rounded-lg p-4 mb-3 border border-slate-800 min-h-[70px] flex items-center justify-center text-center">
-        <div className="text-xl md:text-2xl font-bold tracking-wide select-none">
+      {/* Target Text Card (Modal-style Crisp Box) */}
+      <div className="bg-[#05070c] rounded-lg p-4 mb-4 border border-slate-800 min-h-[75px] flex items-center justify-center text-center">
+        <div className="text-xl md:text-2xl font-bold tracking-wide select-none font-sans">
           {targetText.split('').map((char, index) => {
-            let colorClass = 'text-gray-400';
+            let colorClass = 'text-slate-500';
             if (index < inputText.length) {
-              colorClass = inputText[index] === char ? 'text-emerald-400 font-extrabold' : 'text-rose-500 bg-rose-950/60 px-0.5 rounded';
+              colorClass = inputText[index] === char ? 'text-emerald-400 font-extrabold' : 'text-rose-400 bg-rose-950/80 px-0.5 rounded';
             } else if (index === inputText.length) {
               colorClass = 'text-amber-300 underline underline-offset-4 font-black animate-pulse';
             }
@@ -154,7 +148,7 @@ export const TypingPanel = ({
         </div>
       </div>
 
-      {/* 입력 창 */}
+      {/* Input Box */}
       <div className="relative mb-3">
         <input
           ref={inputRef}
@@ -163,19 +157,19 @@ export const TypingPanel = ({
           onChange={handleInputChange}
           disabled={disabled}
           placeholder={disabled ? "대결 준비 중..." : "위 문장을 정확히 입력하세요! (숫자 1, 2, 3 키로 공격 변경)"}
-          className="w-full bg-slate-800/90 text-white text-lg font-semibold px-4 py-3 rounded-lg border border-amber-500/40 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/30 transition-all placeholder:text-gray-500"
+          className="w-full bg-[#131a26] text-white text-lg font-semibold px-4 py-3 rounded-lg border border-amber-500/40 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 transition-all placeholder:text-slate-600 font-sans"
           autoFocus
         />
       </div>
 
-      {/* 하단 타자 속도 (WPM/CPM) 및 정확도 현황판 */}
-      <div className="flex justify-between items-center px-2 text-xs font-bold text-gray-300">
-        <div className="flex gap-4">
-          <span className="text-amber-400">⚡ 타수: <strong className="text-base text-white">{cpm}</strong> 타/분</span>
-          <span className="text-emerald-400">🎯 정확도: <strong className="text-base text-white">{accuracy}%</strong></span>
+      {/* Stats Bar (Modal-style Mono Typography) */}
+      <div className="flex justify-between items-center px-2 text-xs font-mono font-bold text-slate-400">
+        <div className="flex gap-5">
+          <span className="text-amber-400">SPEED: <strong className="text-sm text-white font-sans">{cpm}</strong> CPM</span>
+          <span className="text-emerald-400">ACCURACY: <strong className="text-sm text-white font-sans">{accuracy}%</strong></span>
         </div>
-        <span className="text-gray-400 text-[11px]">
-          입력 즉시 공격 발동! (빠른 타자 = 강력한 연타)
+        <span className="text-slate-500 text-[11px] uppercase tracking-wider">
+          TYPING TRIGGERS ATTACK INSTANTLY
         </span>
       </div>
     </div>
