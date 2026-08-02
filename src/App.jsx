@@ -101,7 +101,7 @@ export function App() {
     ? { id: 'sandbag', name: '연습용 샌드백', color: '#94a3b8', grade: 'Common', attackMultiplier: 0 }
     : getEnemyCharForStage(stage);
 
-  // 솔로 플레이 AI 난이도 하향 (공격 딜레이 넉넉하게, 공격력 낮춤)
+  // 솔로 플레이 AI 난이도 하향
   useEffect(() => {
     if (gameMode !== 'solo' || enemyHp <= 0 || playerHp <= 0) return;
 
@@ -168,20 +168,18 @@ export function App() {
     setGameMode('multi');
   };
 
-  // 데미지 밸런스 조정: 단어 너프(6), 짧은 문장 버프(35), 긴 문장 대폭 버프(75)
   const handlePlayerAttack = ({ type, cpm: attackCpm }) => {
     let actionType = 'punch';
-    let baseDamage = 6; // 단어 기본 데미지 너프
+    let baseDamage = 6;
 
     if (type === 'short') {
       actionType = 'kick';
-      baseDamage = 35; // 짧은 문장 버프
+      baseDamage = 35;
     } else if (type === 'long') {
       actionType = 'fireball';
-      baseDamage = 75; // 긴 문장 대폭 버프!
+      baseDamage = 75;
     }
 
-    // 이번 판 CPM 기록 누적
     if (attackCpm > 0) {
       setMatchCpmList(prev => [...prev, attackCpm]);
     }
@@ -193,11 +191,10 @@ export function App() {
     setCombo(nextCombo);
     soundEngine.playComboChime(nextCombo);
 
-    // 5콤보 이상 시 대사격/팔지녀 초필살기 폭발 & 데미지 보정
     if (nextCombo % 5 === 0) {
       setIsSuperMoveActive(true);
       soundEngine.playSuperSpecial();
-      finalDamage = Math.round(finalDamage * 2.2); // 5콤보 폭발력 강화
+      finalDamage = Math.round(finalDamage * 2.2);
       setTimeout(() => setIsSuperMoveActive(false), 1400);
     }
 
@@ -218,7 +215,6 @@ export function App() {
   };
 
   const handleGameOver = (result) => {
-    // 이번 판 평균 CPM 계산
     let calculatedAvgCpm = 0;
     if (matchCpmList.length > 0) {
       const sum = matchCpmList.reduce((acc, val) => acc + val, 0);
@@ -228,7 +224,6 @@ export function App() {
     }
     setAvgCpm(calculatedAvgCpm);
 
-    // 최고 CPM 기록 갱신 시 업데이트
     if (calculatedAvgCpm > maxCpm) {
       setMaxCpm(calculatedAvgCpm);
     }
@@ -274,20 +269,22 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans select-none border-t-2 border-[#f5a623]">
-      {/* Modal Style Header */}
-      <header className="bg-[#0b0e14]/90 border-b border-slate-800/80 py-3 px-6 flex justify-between items-center shadow-lg backdrop-blur-xl sticky top-0 z-40">
+    <div className="min-h-screen bg-[#05070c] text-slate-100 flex flex-col font-sans select-none border-t-4 border-[#f5a623]">
+      {/* KOF Style Arcade Top Bar */}
+      <header className="bg-[#0a0d14]/95 border-b border-amber-500/40 py-3 px-6 flex justify-between items-center shadow-[0_4px_20px_rgba(0,0,0,0.8)] backdrop-blur-xl sticky top-0 z-40">
         <div className="flex items-center gap-4">
           <div 
             onClick={() => setGameMode('menu')} 
-            className="cursor-pointer flex items-center gap-2.5 group"
+            className="cursor-pointer flex items-center gap-3 group"
           >
-            <span className="text-2xl">🥊</span>
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,166,35,0.6)] group-hover:scale-110 transition-transform">
+              🥊
+            </div>
             <div>
-              <h1 className="text-xl font-black italic tracking-widest text-white group-hover:text-[#f5a623] transition-colors">
-                타자 킹 <span className="text-xs font-mono font-normal text-[#f5a623]">KING OF TYPING</span>
+              <h1 className="text-xl font-black italic tracking-widest text-white group-hover:text-[#f5a623] transition-colors flex items-center gap-2">
+                킹 오브 타이핑 <span className="text-xs font-mono font-extrabold text-[#f5a623] bg-black/60 px-2 py-0.5 rounded border border-amber-500/40">K.O.T</span>
               </h1>
-              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">RETRO ACTION TYPING ENGINE</p>
+              <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">RETRO ARCADE FIGHTING ENGINE</p>
             </div>
           </div>
 
@@ -308,7 +305,11 @@ export function App() {
 
           <button 
             onClick={toggleBGM}
-            className="bg-[#05070c] border border-slate-800 px-3 py-1.5 rounded-md text-xs font-mono font-bold text-slate-400 hover:text-amber-400 transition-colors"
+            className={`border px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-all ${
+              isBGMOn 
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-[0_0_10px_rgba(245,166,35,0.3)]' 
+                : 'bg-[#05070c] text-slate-400 border-slate-800 hover:text-amber-400'
+            }`}
           >
             {isBGMOn ? '🔊 BGM ON' : '🔇 BGM OFF'}
           </button>
@@ -317,7 +318,7 @@ export function App() {
         <div className="flex items-center gap-3">
           <button
             onClick={openHallOfFame}
-            className="bg-[#141923] hover:bg-[#1a2130] text-yellow-400 border border-yellow-500/50 px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5"
+            className="bg-[#141923] hover:bg-[#1a2130] text-yellow-400 border border-yellow-500/50 px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all hover:scale-105"
           >
             👑 명예의 전당
           </button>
@@ -332,7 +333,7 @@ export function App() {
 
           <button
             onClick={() => setIsGachaOpen(true)}
-            className="bg-[#f5a623] hover:bg-amber-400 text-black font-mono font-bold text-xs uppercase tracking-wider px-3 py-2 rounded-lg shadow-sm transition-transform transform hover:scale-105"
+            className="bg-[#f5a623] hover:bg-amber-400 text-black font-mono font-black text-xs uppercase tracking-wider px-3.5 py-2 rounded-lg shadow-[0_0_15px_rgba(245,166,35,0.3)] transition-transform transform hover:scale-105"
           >
             🎁 상점
           </button>
@@ -366,50 +367,71 @@ export function App() {
         </div>
       </header>
 
-      {/* Main Container */}
+      {/* Main Content Area */}
       <main className="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full">
         {gameMode === 'menu' && (
-          <div className="w-full text-center flex flex-col items-center py-8 animate-fadeIn">
-            <div className="mb-8">
-              <div className="inline-block bg-[#141923] border border-amber-500/40 px-3.5 py-1 rounded-full text-amber-400 text-xs font-mono font-bold uppercase tracking-widest mb-4">
-                🔥 KOF STYLE HIGH-SPEED TYPING ACTION ENGINE
+          <div className="w-full text-center flex flex-col items-center py-6 animate-fadeIn">
+            {/* 🥊 KOF 98 오락실 타이틀 스테이지 렌더링 🥊 */}
+            <div className="relative w-full max-w-3xl bg-gradient-to-b from-[#100720] via-[#090c16] to-[#05070c] border-2 border-amber-500/50 rounded-2xl p-8 mb-8 shadow-[0_0_50px_rgba(245,166,35,0.25)] overflow-hidden">
+              
+              {/* Neon Grid Overlay */}
+              <div className="absolute inset-0 bg-[radial-gradient(#f5a623_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+
+              {/* Top Banner Tag */}
+              <div className="inline-flex items-center gap-2 bg-[#1a1326] border border-amber-400/60 px-4 py-1.5 rounded-full text-amber-300 text-xs font-mono font-black uppercase tracking-widest mb-6 shadow-[0_0_15px_rgba(245,166,35,0.3)]">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <span>ARCADE RETRO BATTLE 98 - ULTIMATE MATCH</span>
               </div>
-              <h2 className="text-5xl md:text-6xl font-black italic tracking-tight text-white mb-3">
-                타자 킹 <span className="text-[#f5a623] font-mono">: K.O.T</span>
-              </h2>
-              <p className="text-slate-400 text-sm max-w-lg mx-auto font-sans leading-relaxed">
-                숫자 <strong className="text-amber-400 font-mono">[1]번(단어)</strong>, <strong className="text-orange-400 font-mono">[2]번(짧은 문장)</strong>, <strong className="text-rose-400 font-mono">[3]번(긴 문장)</strong> 키로 
-                공격을 전환하며 상대 AI를 KO 시키세요!
+
+              {/* Main Title Logo */}
+              <div className="relative mb-6">
+                <h1 className="text-6xl md:text-7xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-red-600 drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]">
+                  킹 오브 타이핑
+                </h1>
+                <p className="text-xl md:text-2xl font-black italic text-amber-200 tracking-widest font-mono mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  KING OF TYPING : K.O.T
+                </p>
+              </div>
+
+              {/* Sub Description */}
+              <p className="text-slate-300 text-sm max-w-lg mx-auto font-sans leading-relaxed mb-6 bg-black/60 p-3.5 rounded-xl border border-slate-800">
+                타격 모드 <strong className="text-amber-400 font-mono">[1]단어</strong>, <strong className="text-orange-400 font-mono">[2]짧은문장</strong>, <strong className="text-rose-400 font-mono">[3]긴문장(필살)</strong> 키를 전환하고 
+                초스피드 타자로 상대를 KO 시키세요!
               </p>
+
+              {/* Press Start / Coin Insert Animation */}
+              <div className="text-amber-400 font-mono font-black text-sm tracking-widest animate-pulse flex items-center justify-center gap-2">
+                <span>▶</span> PRESS ANY MODE BUTTON TO START FIGHT <span>◀</span>
+              </div>
             </div>
 
-            {/* Mode Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl mb-8">
+            {/* Mode Select Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl">
               <button
                 onClick={startPracticeGame}
-                className="group bg-[#0c1017] hover:bg-[#121824] border border-slate-800 hover:border-amber-400 rounded-xl p-6 text-left transition-all transform hover:-translate-y-1 shadow-lg"
+                className="group bg-[#0c1017] hover:bg-[#121824] border border-slate-800 hover:border-amber-400 rounded-xl p-6 text-left transition-all transform hover:-translate-y-1 shadow-lg relative overflow-hidden"
               >
-                <div className="text-3xl mb-3">🥊</div>
-                <h3 className="text-xl font-bold text-white group-hover:text-[#f5a623] transition-colors">연습실</h3>
-                <p className="text-xs font-sans text-slate-500 mt-2">샌드백을 치며 자유롭게 타자 속도(CPM)와 정확도를 측정해보세요.</p>
+                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">🥊</div>
+                <h3 className="text-xl font-bold text-white group-hover:text-[#f5a623] transition-colors">연습실 (PRACTICE)</h3>
+                <p className="text-xs font-sans text-slate-400 mt-2 leading-relaxed">샌드백을 타격하며 정확도 및 실시간 CPM 타수를 연습하세요.</p>
               </button>
 
               <button
                 onClick={() => startSoloGame(1)}
-                className="group bg-gradient-to-b from-[#141923] to-[#0c1017] border border-amber-500/50 hover:border-amber-400 rounded-xl p-6 text-left transition-all transform hover:-translate-y-1 shadow-[0_4px_20px_rgba(245,166,35,0.15)]"
+                className="group bg-gradient-to-b from-[#171d2b] to-[#0c1017] border border-amber-500/60 hover:border-amber-400 rounded-xl p-6 text-left transition-all transform hover:-translate-y-1 shadow-[0_4px_25px_rgba(245,166,35,0.2)] relative overflow-hidden"
               >
-                <div className="text-3xl mb-3">🏆</div>
-                <h3 className="text-xl font-bold text-[#f5a623]">솔로 플레이</h3>
-                <p className="text-xs font-sans text-slate-400 mt-2">1단계부터 7단계(보스)까지 단계별 컴퓨터 AI와 1v1 대결!</p>
+                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">🏆</div>
+                <h3 className="text-xl font-black text-[#f5a623]">솔로 챌린지 (STAGES)</h3>
+                <p className="text-xs font-sans text-slate-300 mt-2 leading-relaxed">Stage 1부터 최종 7단계 오로치 이오린 보스까지 아케이드 도전!</p>
               </button>
 
               <button
                 onClick={() => setGameMode('multi_match')}
-                className="group bg-[#0c1017] hover:bg-[#121824] border border-slate-800 hover:border-orange-400 rounded-xl p-6 text-left transition-all transform hover:-translate-y-1 shadow-lg"
+                className="group bg-[#0c1017] hover:bg-[#121824] border border-slate-800 hover:border-orange-400 rounded-xl p-6 text-left transition-all transform hover:-translate-y-1 shadow-lg relative overflow-hidden"
               >
-                <div className="text-3xl mb-3">⚔️</div>
-                <h3 className="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">멀티 플레이</h3>
-                <p className="text-xs font-sans text-slate-500 mt-2">제한 없이 누구와나 실시간 1v1 랜덤 대결을 즐기세요!</p>
+                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">⚔️</div>
+                <h3 className="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">실시간 1v1 (ONLINE)</h3>
+                <p className="text-xs font-sans text-slate-400 mt-2 leading-relaxed">제한 없이 누구와나 실시간 1대1 타자 대결을 펼치세요!</p>
               </button>
             </div>
           </div>
@@ -450,7 +472,7 @@ export function App() {
           </div>
         )}
 
-        {/* 게임 종료 결과 창 (타자 평균 속도 CPM 표시 연출) */}
+        {/* GameOver Result Window */}
         {gameOverResult && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0c1017] border-2 border-amber-500/80 rounded-2xl max-w-md w-full p-6 text-center shadow-[0_0_50px_rgba(245,166,35,0.4)] animate-bounce">
@@ -464,7 +486,6 @@ export function App() {
                   : 'TRY AGAIN WITH HIGHER TYPING SPEED!'}
               </p>
 
-              {/* 타자 평균 속도 및 결과 보상 통계 */}
               <div className="bg-[#05070c] p-4 rounded-xl border border-slate-800 mb-6 text-left text-xs font-mono space-y-2.5">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                   <span className="text-slate-400 font-bold">⌨️ 이번 판 평균 타수:</span>
@@ -522,7 +543,7 @@ export function App() {
         onEquipCharacter={handleEquipCharacter}
       />
 
-      {/* 명예의 전당 모달 (Hall of Fame) */}
+      {/* Hall of Fame Modal */}
       {isHallOfFameOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0c1017] border border-amber-500/40 rounded-2xl w-full max-w-md p-6 text-white shadow-[0_0_40px_rgba(0,0,0,0.8)]">
