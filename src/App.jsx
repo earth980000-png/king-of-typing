@@ -229,6 +229,15 @@ export function App() {
     }
   };
 
+  // 캐릭터 장착 변경 핸들러 (실시간 동기화)
+  const handleEquipCharacter = (charId) => {
+    setEquippedCharId(charId);
+    const selectedChar = CHARACTERS.find(c => c.id === charId) || CHARACTERS[0];
+    const newMaxHp = Math.round(100 * (selectedChar.attackMultiplier || 1.0));
+    setMaxPlayerHp(newMaxHp);
+    setPlayerHp(newMaxHp);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none">
       {/* 상단 네온 아케이드 헤더 */}
@@ -267,8 +276,8 @@ export function App() {
         {/* 유저 상태 / 골드 / 로그인 / 상점 */}
         <div className="flex items-center gap-4">
           {/* 장착 캐릭터 정보 */}
-          <div className="hidden sm:flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
-            <span className="text-xs text-gray-400">장착:</span>
+          <div className="hidden sm:flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-lg border border-amber-500/40">
+            <span className="text-xs text-gray-400">장착 중:</span>
             <span className="text-xs font-bold text-amber-300">{equippedChar.name}</span>
           </div>
 
@@ -477,11 +486,12 @@ export function App() {
         ownedCharIds={ownedCharIds}
         onUnlockCharacter={(id) => setOwnedCharIds(prev => prev.includes(id) ? prev : [...prev, id])}
         equippedCharId={equippedCharId}
-        onEquipCharacter={(id) => setEquippedCharId(id)}
+        onEquipCharacter={handleEquipCharacter}
       />
     </div>
   );
 }
 
 export default App;
+
 

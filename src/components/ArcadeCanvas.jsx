@@ -26,27 +26,27 @@ export const ArcadeCanvas = ({
     let screenShake = 0;
 
     const addHitParticles = (x, y, color = "#fef08a") => {
-      for (let i = 0; i < 24; i++) {
+      for (let i = 0; i < 28; i++) {
         particles.push({
           x,
           y,
-          vx: (Math.random() - 0.5) * 16,
-          vy: (Math.random() - 0.5) * 16,
-          radius: Math.random() * 6 + 2,
+          vx: (Math.random() - 0.5) * 18,
+          vy: (Math.random() - 0.5) * 18,
+          radius: Math.random() * 7 + 2,
           color,
           alpha: 1,
-          life: 30
+          life: 32
         });
       }
     };
 
     if (playerAction === 'punch' || playerAction === 'kick' || playerAction === 'fireball') {
-      screenShake = playerAction === 'fireball' ? 14 : 7;
-      addHitParticles(570, 210, playerChar.color || '#eab308');
+      screenShake = playerAction === 'fireball' ? 16 : 8;
+      addHitParticles(560, 210, playerChar.color || '#eab308');
     }
     if (enemyAction === 'punch' || enemyAction === 'kick' || enemyAction === 'fireball') {
-      screenShake = 8;
-      addHitParticles(230, 210, enemyChar.color || '#ef4444');
+      screenShake = 10;
+      addHitParticles(240, 210, enemyChar.color || '#ef4444');
     }
 
     let tick = 0;
@@ -65,20 +65,20 @@ export const ArcadeCanvas = ({
       }
 
       // 1. KOF / 철권 전용 아케이드 배경 렌더링
-      drawRealisticStageBackground(ctx, canvas.width, canvas.height, stage);
+      drawKofArenaStage(ctx, canvas.width, canvas.height, stage);
 
-      // 2. KOF 스타일 실제격투가 스프라이트 렌더링
+      // 2. 캐릭터별 맞춤형 KOF 레트로 액션 격투가 스프라이트 렌더링
       const p1X = 220;
       const p2X = 580;
       const groundY = 275;
 
-      // P1 Fighter
-      drawRealisticKofFighter(ctx, p1X, groundY, playerChar, playerAction, false, tick, combo);
+      // Player Fighter (좌측)
+      drawCharacterSprite(ctx, p1X, groundY, playerChar, playerAction, false, tick);
 
-      // P2 / Enemy Fighter
-      drawRealisticKofFighter(ctx, p2X, groundY, enemyChar, enemyAction, true, tick, 0);
+      // Enemy / Opponent Fighter (우측 - 반전)
+      drawCharacterSprite(ctx, p2X, groundY, enemyChar, enemyAction, true, tick);
 
-      // 3. 파티클 이펙트
+      // 3. 타격 파티클 이펙트
       particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
@@ -87,7 +87,7 @@ export const ArcadeCanvas = ({
         ctx.globalAlpha = Math.max(0, p.alpha);
         ctx.fillStyle = p.color;
         ctx.shadowColor = p.color;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 12;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -97,7 +97,7 @@ export const ArcadeCanvas = ({
 
       // 4. 5콤보 달성 시 KOF 컷인 필살기
       if (isSuperMoveActive) {
-        drawKofCutInBanner(ctx, canvas.width, canvas.height, playerChar, combo);
+        drawSuperCutInOverlay(ctx, canvas.width, canvas.height, playerChar, combo);
       }
 
       ctx.restore();
@@ -107,10 +107,10 @@ export const ArcadeCanvas = ({
     render();
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [playerAction, enemyAction, isSuperMoveActive, stage, combo, playerChar, enemyChar]);
+  }, [playerAction, enemyAction, isSuperMoveActive, stage, combo, playerChar.id, enemyChar.id, playerChar, enemyChar]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl border-4 border-amber-500/80 shadow-[0_0_35px_rgba(245,158,11,0.5)]">
+    <div className="relative w-full overflow-hidden rounded-xl border-4 border-amber-500/80 shadow-[0_0_40px_rgba(245,158,11,0.6)]">
       <canvas
         ref={canvasRef}
         width={800}
@@ -123,15 +123,15 @@ export const ArcadeCanvas = ({
         {/* P1 Profile & HP */}
         <div className="w-5/12 bg-slate-950/90 p-2.5 rounded-xl border-2 border-amber-400/80 backdrop-blur-md flex items-center gap-3">
           <div 
-            className="w-10 h-10 rounded-lg overflow-hidden border border-amber-400 shrink-0 bg-slate-900"
+            className="w-12 h-12 rounded-lg overflow-hidden border-2 border-amber-400 shrink-0 bg-slate-900 shadow-[0_0_10px_#f59e0b]"
             dangerouslySetInnerHTML={{ __html: playerChar.avatarSvg || '' }}
           />
           <div className="flex-1">
             <div className="flex justify-between items-center mb-1 text-xs font-black text-amber-300">
-              <span>{playerChar.name}</span>
+              <span className="text-sm">{playerChar.name}</span>
               <span>{Math.max(0, Math.round(playerHp))} / {maxPlayerHp}</span>
             </div>
-            <div className="w-full h-3.5 bg-gray-950 rounded-full overflow-hidden border border-amber-500/40 p-0.5">
+            <div className="w-full h-3.5 bg-gray-950 rounded-full overflow-hidden border border-amber-500/50 p-0.5">
               <div 
                 className="h-full bg-gradient-to-r from-amber-400 via-yellow-300 to-emerald-400 rounded-full transition-all duration-300 shadow-[0_0_12px_#f59e0b]"
                 style={{ width: `${Math.max(0, (playerHp / maxPlayerHp) * 100)}%` }}
@@ -142,11 +142,11 @@ export const ArcadeCanvas = ({
 
         {/* VS Emblem & Stage */}
         <div className="flex flex-col items-center">
-          <span className="text-3xl font-black italic text-yellow-400 drop-shadow-[0_0_15px_#facc15] tracking-wider animate-pulse">
+          <span className="text-3xl font-black italic text-yellow-400 drop-shadow-[0_0_18px_#facc15] tracking-wider animate-pulse">
             VS
           </span>
-          <span className="text-[10px] font-bold text-amber-300 bg-slate-950/90 px-2 py-0.5 rounded border border-amber-500/60">
-            {mode === 'solo' ? `STAGE ${stage}` : 'TEAM MATCH'}
+          <span className="text-[10px] font-bold text-amber-300 bg-slate-950/90 px-2.5 py-0.5 rounded border border-amber-500/60">
+            {mode === 'solo' ? `STAGE ${stage}` : mode === 'practice' ? 'PRACTICE' : 'TEAM MATCH'}
           </span>
         </div>
 
@@ -155,9 +155,9 @@ export const ArcadeCanvas = ({
           <div className="flex-1">
             <div className="flex justify-between items-center mb-1 text-xs font-black text-rose-300">
               <span>{Math.max(0, Math.round(enemyHp))} / {maxEnemyHp}</span>
-              <span>{enemyChar.name}</span>
+              <span className="text-sm">{enemyChar.name}</span>
             </div>
-            <div className="w-full h-3.5 bg-gray-950 rounded-full overflow-hidden border border-rose-500/40 p-0.5">
+            <div className="w-full h-3.5 bg-gray-950 rounded-full overflow-hidden border border-rose-500/50 p-0.5">
               <div 
                 className="h-full bg-gradient-to-l from-rose-500 via-red-400 to-pink-500 rounded-full transition-all duration-300 shadow-[0_0_12px_#f43f5e] ml-auto"
                 style={{ width: `${Math.max(0, (enemyHp / maxEnemyHp) * 100)}%` }}
@@ -165,7 +165,7 @@ export const ArcadeCanvas = ({
             </div>
           </div>
           <div 
-            className="w-10 h-10 rounded-lg overflow-hidden border border-rose-500 shrink-0 bg-slate-900"
+            className="w-12 h-12 rounded-lg overflow-hidden border-2 border-rose-500 shrink-0 bg-slate-900 shadow-[0_0_10px_#f43f5e]"
             dangerouslySetInnerHTML={{ __html: enemyChar.avatarSvg || '' }}
           />
         </div>
@@ -183,13 +183,13 @@ export const ArcadeCanvas = ({
   );
 };
 
-// 고화질 KOF 아케이드 스테이지 배경
-function drawRealisticStageBackground(ctx, w, h, stage) {
+// KOF 아케이드 링 배경
+function drawKofArenaStage(ctx, w, h, stage) {
   const grad = ctx.createLinearGradient(0, 0, 0, h);
   if (stage === 7) {
     grad.addColorStop(0, '#450a0a');
     grad.addColorStop(0.6, '#7f1d1d');
-    grad.addColorStop(1, '#0f172a');
+    grad.addColorStop(1, '#020617');
   } else {
     grad.addColorStop(0, '#090d16');
     grad.addColorStop(0.6, '#1e1b4b');
@@ -198,15 +198,15 @@ function drawRealisticStageBackground(ctx, w, h, stage) {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 
-  // 네온 달 / 스타디움 인조 조명
+  // 스포트라이트
   ctx.save();
   ctx.fillStyle = stage === 7 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(234, 179, 8, 0.2)';
   ctx.beginPath();
-  ctx.arc(w / 2, 90, 140, 0, Math.PI * 2);
+  ctx.arc(w / 2, 80, 150, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
-  // 토너먼트 바닥
+  // 바닥 링
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(0, 255, w, h - 255);
 
@@ -218,155 +218,171 @@ function drawRealisticStageBackground(ctx, w, h, stage) {
   ctx.stroke();
 }
 
-// 킹오파 / 철권 스타일 고화질 캐릭터 스프라이트 렌더링
-function drawRealisticKofFighter(ctx, x, y, char, action, isFlip, tick, combo) {
+// 각 캐릭터별 고유 KOF 액션 격투가 스프라이트 개별 렌더링
+function drawCharacterSprite(ctx, x, y, char, action, isFlip, tick) {
   ctx.save();
   ctx.translate(x, y);
   if (isFlip) ctx.scale(-1, 1);
 
-  const mainColor = char.color || '#eab308';
-  const secColor = char.secondaryColor || '#1e293b';
-  const skinTone = char.skinTone || '#fde047';
+  const bounceY = Math.sin(tick * 0.15) * 3;
+  const charId = char.id || 'kyo';
 
-  // 아우라 효과
+  // 1. 샌드백 로봇 전용
+  if (charId === 'sandbag') {
+    ctx.fillStyle = '#64748b';
+    ctx.beginPath();
+    ctx.roundRect(-20, -90 + bounceY, 40, 75, 12);
+    ctx.fill();
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-6, -15 + bounceY, 12, 15);
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(0, -65 + bounceY, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+
+  // 2. 캐릭터별 맞춤형 KOF 디자인
+  let jacketColor = char.color || '#eab308';
+  let pantsColor = char.secondaryColor || '#1e293b';
+  let hairColor = '#0f172a';
+  let isFlameFighter = false;
+  let isNinja = false;
+  let isMecha = false;
+
+  if (charId === 'iori' || charId === 'orochi_iori') {
+    hairColor = '#dc2626';
+    jacketColor = '#881337';
+    pantsColor = '#450a0a';
+    isFlameFighter = true;
+  } else if (charId === 'chunli') {
+    hairColor = '#0f172a';
+    jacketColor = '#2563eb';
+    pantsColor = '#1d4ed8';
+  } else if (charId === 'terry') {
+    hairColor = '#facc15';
+    jacketColor = '#dc2626';
+    pantsColor = '#1e3a8a';
+  } else if (charId === 'shadow_ninja') {
+    hairColor = '#3b0764';
+    jacketColor = '#581c87';
+    pantsColor = '#1e1b4b';
+    isNinja = true;
+  } else if (charId === 'cyber_mecha') {
+    jacketColor = '#083344';
+    pantsColor = '#334155';
+    isMecha = true;
+  } else if (charId === 'god_kyo') {
+    hairColor = '#0f172a';
+    jacketColor = '#ea580c';
+    pantsColor = '#7c2d12';
+    isFlameFighter = true;
+  }
+
+  // 레전더리 / 히든 캐릭터 아우라 효과
   if (char.grade === 'Legendary' || char.grade === 'Hidden') {
     ctx.save();
-    ctx.fillStyle = mainColor;
-    ctx.globalAlpha = 0.3 + Math.sin(tick * 0.2) * 0.15;
+    ctx.fillStyle = jacketColor;
+    ctx.globalAlpha = 0.35 + Math.sin(tick * 0.25) * 0.15;
     ctx.beginPath();
     ctx.arc(0, -60, 75, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 
-  const bounceY = Math.sin(tick * 0.15) * 3;
-
-  // 1. 발차기 (Kick) 연출
+  // 하체 / 바지 & 다리
   if (action === 'kick') {
-    // 서있는 하체 & 바지
-    ctx.fillStyle = secColor;
-    ctx.beginPath();
-    ctx.roundRect(-18, -45 + bounceY, 20, 45, 4);
-    ctx.fill();
-
-    // 역동적으로 가로로 뻗은 발차기 다리
-    ctx.fillStyle = secColor;
-    ctx.beginPath();
-    ctx.roundRect(-5, -60 + bounceY, 65, 18, 6);
-    ctx.fill();
-
-    // 부츠 / 신발
+    ctx.fillStyle = pantsColor;
+    ctx.beginPath(); ctx.roundRect(-16, -45 + bounceY, 18, 45, 4); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(-5, -62 + bounceY, 65, 18, 6); ctx.fill();
     ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.roundRect(55, -62 + bounceY, 18, 22, 4);
-    ctx.fill();
+    ctx.beginPath(); ctx.roundRect(55, -64 + bounceY, 18, 22, 4); ctx.fill();
 
-    // 발차기 이펙트 (KOF 킥 궤적)
-    ctx.strokeStyle = mainColor;
+    // 킥 잔상
+    ctx.strokeStyle = jacketColor;
     ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.arc(35, -50 + bounceY, 40, -0.4, 0.4);
-    ctx.stroke();
+    ctx.beginPath(); ctx.arc(35, -50 + bounceY, 40, -0.4, 0.4); ctx.stroke();
   } else {
-    // 일반 다리 자세
-    ctx.fillStyle = secColor;
-    ctx.beginPath();
-    ctx.roundRect(-22, -45 + bounceY, 18, 45, 4);
-    ctx.roundRect(4, -45 + bounceY, 18, 45, 4);
-    ctx.fill();
-
-    // 벨트
+    ctx.fillStyle = pantsColor;
+    ctx.beginPath(); ctx.roundRect(-22, -45 + bounceY, 18, 45, 4); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(4, -45 + bounceY, 18, 45, 4); ctx.fill();
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(-20, -48 + bounceY, 40, 5);
   }
 
-  // 2. 토르소 / 격투 도복 상의 & 근육 셰이딩
-  ctx.fillStyle = mainColor;
+  // 상체 (도복/가죽자켓)
+  ctx.fillStyle = jacketColor;
   ctx.beginPath();
   ctx.roundRect(-24, -95 + bounceY, 48, 52, 6);
   ctx.fill();
 
-  // 복근 & 가슴 근육 디테일 라인
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(-10, -85 + bounceY); ctx.lineTo(0, -65 + bounceY); ctx.lineTo(10, -85 + bounceY);
-  ctx.stroke();
-
-  // 3. 머리 (Realistic Face & Hair)
-  // 얼굴 스킨
-  ctx.fillStyle = skinTone;
+  // 머리 & 헤어스타일
+  ctx.fillStyle = char.skinTone || '#fde047';
   ctx.beginPath();
   ctx.arc(0, -112 + bounceY, 16, 0, Math.PI * 2);
   ctx.fill();
 
-  // KOF 스타일 머리카락 & 헤드밴드
-  ctx.fillStyle = char.id === 'iori' || char.id === 'orochi_iori' ? '#dc2626' : '#0f172a';
+  // 헤어
+  ctx.fillStyle = hairColor;
   ctx.beginPath();
   ctx.arc(0, -118 + bounceY, 18, Math.PI, 0);
   ctx.fill();
 
-  // 머리띠
-  ctx.fillStyle = isFlip ? '#ef4444' : '#eab308';
-  ctx.fillRect(-17, -116 + bounceY, 34, 5);
+  if (charId === 'terry') {
+    // 붉은 모자
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-18, -120 + bounceY, 36, 8);
+    ctx.fillRect(0, -116 + bounceY, 22, 4);
+  } else if (charId === 'chunli') {
+    // 춘리 만두머리
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(-16, -118 + bounceY, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(16, -118 + bounceY, 8, 0, Math.PI * 2); ctx.fill();
+  } else {
+    // 머리띠
+    ctx.fillStyle = isFlip ? '#ef4444' : '#eab308';
+    ctx.fillRect(-17, -116 + bounceY, 34, 5);
+  }
 
-  // 눈 / 눈빛
-  ctx.fillStyle = '#000000';
+  // 눈
+  ctx.fillStyle = isMecha ? '#22d3ee' : '#000000';
   ctx.fillRect(4, -112 + bounceY, 4, 3);
 
-  // 4. 팔 & 펀치 / 장풍 연출
+  // 팔 & 공격 발동
   if (action === 'punch') {
-    // 뻗은 펀치 팔
-    ctx.fillStyle = skinTone;
-    ctx.beginPath();
-    ctx.roundRect(5, -88 + bounceY, 55, 14, 5);
-    ctx.fill();
-
-    // 장갑 / 주먹
+    ctx.fillStyle = char.skinTone || '#fde047';
+    ctx.beginPath(); ctx.roundRect(5, -88 + bounceY, 55, 14, 5); ctx.fill();
     ctx.fillStyle = '#dc2626';
-    ctx.beginPath();
-    ctx.arc(62, -81 + bounceY, 10, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 펀치 잔상 궤적
-    ctx.strokeStyle = mainColor;
-    ctx.lineWidth = 4;
-    ctx.strokeRect(30, -89 + bounceY, 35, 16);
+    ctx.beginPath(); ctx.arc(62, -81 + bounceY, 10, 0, Math.PI * 2); ctx.fill();
   } else if (action === 'fireball') {
-    // 장풍 내지르는 팔 자세
-    ctx.fillStyle = skinTone;
-    ctx.beginPath();
-    ctx.roundRect(10, -92 + bounceY, 45, 16, 5);
-    ctx.fill();
+    ctx.fillStyle = char.skinTone || '#fde047';
+    ctx.beginPath(); ctx.roundRect(10, -92 + bounceY, 45, 16, 5); ctx.fill();
 
-    // KOF 화염 불꽃 장풍 구체
+    // 장풍 구체
     ctx.save();
-    ctx.fillStyle = mainColor;
-    ctx.shadowColor = mainColor;
-    ctx.shadowBlur = 25;
+    ctx.fillStyle = jacketColor;
+    ctx.shadowColor = jacketColor;
+    ctx.shadowBlur = 30;
     ctx.beginPath();
-    ctx.arc(75 + (tick % 8) * 3, -84 + bounceY, 24, 0, Math.PI * 2);
+    ctx.arc(75 + (tick % 8) * 3, -84 + bounceY, 25, 0, Math.PI * 2);
     ctx.fill();
 
-    // 불꽃 화염 꼬리
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(75 + (tick % 8) * 3, -84 + bounceY, 12, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   } else {
-    // 대기 자세 팔
-    ctx.fillStyle = skinTone;
-    ctx.beginPath();
-    ctx.roundRect(10, -88 + bounceY, 20, 30, 5);
-    ctx.fill();
+    ctx.fillStyle = char.skinTone || '#fde047';
+    ctx.beginPath(); ctx.roundRect(10, -88 + bounceY, 20, 30, 5); ctx.fill();
   }
 
   ctx.restore();
 }
 
-// 5콤보 달성 KOF 암전 컷인 배너
-function drawKofCutInBanner(ctx, w, h, char, combo) {
+// 5콤보 KOF 필살기 오버레이
+function drawSuperCutInOverlay(ctx, w, h, char, combo) {
   ctx.save();
   ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
   ctx.fillRect(0, 0, w, h);
@@ -398,7 +414,7 @@ function drawKofCutInBanner(ctx, w, h, char, combo) {
 
   ctx.font = 'bold 22px sans-serif';
   ctx.fillStyle = '#fef08a';
-  ctx.fillText(`[${char.name}] 필살 쇄도 폭발!`, w / 2, bannerY + 98);
+  ctx.fillText(`[${char.name}] 초필살기 발동!`, w / 2, bannerY + 98);
 
   ctx.restore();
 }
