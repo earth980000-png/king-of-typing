@@ -1,12 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-// KOF 실사풍 고화질 무대 배경 (Photographic Stage Data)
-const STAGE_BACKGROUNDS = {
-  1: 'linear-gradient(rgba(15, 23, 42, 0.6), rgba(2, 6, 23, 0.8)), url("https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop")', // 아시안 한옥 밤 배경
-  3: 'linear-gradient(rgba(15, 23, 42, 0.5), rgba(2, 6, 23, 0.7)), url("https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop")', // 네온 서버펑크 도장
-  5: 'linear-gradient(rgba(15, 23, 42, 0.5), rgba(2, 6, 23, 0.8)), url("https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop")', // 아케이드 스타디움
-  7: 'linear-gradient(rgba(69, 10, 10, 0.6), rgba(15, 23, 42, 0.9)), url("https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop")'  // 보스 붉은 화열 성채
-};
+// 인물이 전혀 없는 웅장한 도시 야경 배경 (Urban City Night Skyline Background)
+const URBAN_CITY_BACKGROUND = 'linear-gradient(rgba(15, 23, 42, 0.35), rgba(2, 6, 23, 0.75)), url("https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200&auto=format&fit=crop")';
 
 export const ArcadeCanvas = ({ 
   playerChar, 
@@ -89,21 +84,21 @@ export const ArcadeCanvas = ({
         if (screenShake < 0.5) screenShake = 0;
       }
 
-      // 1. KOF 98 실사풍 무대 링 바닥 & 그림자 렌더링
-      drawRealisticStageFloor(ctx, canvas.width, canvas.height, stage);
+      // 1. KOF 98 바닥 무대 & 링 렌더링
+      drawKofStageFloor(ctx, canvas.width, canvas.height);
 
-      // 2. 실사화 격투가 스프라이트 & GIF 모션 렌더링
+      // 2. KOF 98 시안 A 복각 캐릭터 스프라이트 렌더링
       const p1X = 220;
       const p2X = 580;
       const groundY = 275;
 
       // P1 Fighter
-      drawRealisticFighterSprite(ctx, p1X, groundY, playerChar, playerAction, false, tick, combo);
+      drawKofFighterSpriteA(ctx, p1X, groundY, playerChar, playerAction, false, tick, combo);
 
       // P2 Enemy Fighter
-      drawRealisticFighterSprite(ctx, p2X, groundY, enemyChar, enemyAction, true, tick, 0);
+      drawKofFighterSpriteA(ctx, p2X, groundY, enemyChar, enemyAction, true, tick, 0);
 
-      // 3. 타격 파티클 & 힛스파크
+      // 3. 힛스파크 파티클 & 타격 데미지 팝업
       particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
@@ -150,12 +145,10 @@ export const ArcadeCanvas = ({
     return () => cancelAnimationFrame(animationFrameId);
   }, [playerAction, enemyAction, isSuperMoveActive, stage, combo, playerChar.id, enemyChar.id, playerChar, enemyChar]);
 
-  const bgStyle = STAGE_BACKGROUNDS[stage] || STAGE_BACKGROUNDS[1];
-
   return (
     <div 
       className="relative w-full overflow-hidden rounded-xl border-4 border-amber-500/90 shadow-[0_0_40px_rgba(245,158,11,0.6)] bg-cover bg-center transition-all duration-500"
-      style={{ backgroundImage: bgStyle }}
+      style={{ backgroundImage: URBAN_CITY_BACKGROUND }}
     >
       <canvas
         ref={canvasRef}
@@ -267,40 +260,33 @@ export const ArcadeCanvas = ({
   );
 };
 
-// 바닥 반사 그림자 & 무대 링
-function drawRealisticStageFloor(ctx, w, h, stage) {
+// 바닥 무대 & 그림자
+function drawKofStageFloor(ctx, w, h) {
   ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
   ctx.fillRect(0, 260, w, h - 260);
 
-  ctx.strokeStyle = stage === 7 ? '#f43f5e' : '#f59e0b';
+  ctx.strokeStyle = '#f59e0b';
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(0, 260);
   ctx.lineTo(w, 260);
   ctx.stroke();
 
-  // 바닥 그림자
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-  ctx.ellipse(220, 275, 45, 10, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.ellipse(580, 275, 45, 10, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // 그림자
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  ctx.ellipse(220, 275, 45, 10, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.ellipse(580, 275, 45, 10, 0, 0, Math.PI * 2); ctx.fill();
 }
 
-// 실사화 격투가 GIF 애니메이션 스프라이트 렌더링 (Real Fighter Rendering Engine)
-function drawRealisticFighterSprite(ctx, x, y, char, action, isFlip, tick, combo) {
+// 시안 A KOF 98 오리지널 쿄 & 이오리 픽셀 정통 체형 렌더러
+function drawKofFighterSpriteA(ctx, x, y, char, action, isFlip, tick, combo) {
   ctx.save();
   ctx.translate(x, y);
   if (isFlip) ctx.scale(-1, 1);
 
-  // 대기 시 GIF처럼 들썩이는 애니메이션 (Idle Swaying Animation)
   const idleY = Math.sin(tick * 0.16) * 4;
-  const idleRotate = Math.sin(tick * 0.1) * 0.03;
-  ctx.rotate(idleRotate);
-
   const charId = char.id || 'kyo';
 
-  // 1. 샌드백 로봇
   if (charId === 'sandbag') {
     ctx.fillStyle = '#64748b';
     ctx.beginPath(); ctx.roundRect(-22, -90 + idleY, 44, 75, 12); ctx.fill();
@@ -310,88 +296,97 @@ function drawRealisticFighterSprite(ctx, x, y, char, action, isFlip, tick, combo
     return;
   }
 
-  // 2. 실사풍 쿄 / 이오리 / 격투가 인물 렌더링
-  let bodyColor = char.color || '#f59e0b';
-  let pantsColor = char.secondaryColor || '#1e293b';
-
-  if (charId === 'iori' || charId === 'orochi_iori') {
-    bodyColor = '#881337';
-    pantsColor = '#dc2626';
-  } else if (charId === 'chunli') {
-    bodyColor = '#2563eb';
-    pantsColor = '#1d4ed8';
-  } else if (charId === 'terry') {
-    bodyColor = '#dc2626';
-    pantsColor = '#1e3a8a';
-  }
-
-  // 실사 다리 & 부츠
-  if (action === 'kick') {
-    ctx.fillStyle = pantsColor;
-    ctx.beginPath(); ctx.roundRect(-16, -45 + idleY, 18, 45, 4); ctx.fill();
-    ctx.beginPath(); ctx.roundRect(-5, -65 + idleY, 70, 20, 6); ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.roundRect(60, -67 + idleY, 20, 24, 4); ctx.fill();
-
-    // 발차기 이펙트
-    ctx.strokeStyle = bodyColor;
-    ctx.lineWidth = 8;
-    ctx.beginPath(); ctx.arc(40, -52 + idleY, 45, -0.4, 0.4); ctx.stroke();
-  } else {
-    ctx.fillStyle = pantsColor;
-    ctx.beginPath(); ctx.roundRect(-22, -45 + idleY, 18, 45, 4); ctx.fill();
-    ctx.beginPath(); ctx.roundRect(4, -45 + idleY, 18, 45, 4); ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-20, -48 + idleY, 40, 5);
-  }
-
-  // 실사 상체 & 재킷
-  ctx.fillStyle = bodyColor;
-  ctx.beginPath(); ctx.roundRect(-26, -98 + idleY, 52, 54, 8); ctx.fill();
-
-  // 음영 디테일
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  ctx.fillRect(-20, -85 + idleY, 10, 40);
-
-  // 실사 얼굴 & 헤어
-  ctx.fillStyle = '#fde047'; // skin
-  ctx.beginPath(); ctx.arc(0, -114 + idleY, 16, 0, Math.PI * 2); ctx.fill();
-
-  // 머리칼 (쿄: 가르마 / 이오리: 붉은 앞머리)
-  ctx.fillStyle = charId === 'iori' || charId === 'orochi_iori' ? '#dc2626' : '#0f172a';
-  ctx.beginPath(); ctx.arc(0, -120 + idleY, 19, Math.PI, 0); ctx.fill();
-
+  // 1. KOF 98 KYO (쿠사나기 쿄 - 시안 A)
   if (charId === 'kyo' || charId === 'god_kyo') {
-    // 쿄 머리띠
+    // 바지 & 신발
+    ctx.fillStyle = '#ffffff'; // 무술화
+    ctx.fillRect(-22, -10 + idleY, 14, 10);
+    ctx.fillRect(8, -10 + idleY, 14, 10);
+
+    ctx.fillStyle = '#0f172a'; // 교복 바지
+    ctx.fillRect(-20, -48 + idleY, 16, 40);
+    ctx.fillRect(6, -48 + idleY, 16, 40);
+
+    // 티셔츠 & 가죽 자켓
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-18, -118 + idleY, 36, 6);
-  }
+    ctx.fillRect(-16, -90 + idleY, 32, 45);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-24, -95 + idleY, 12, 48);
+    ctx.fillRect(12, -95 + idleY, 12, 48);
 
-  // 눈
-  ctx.fillStyle = '#000000';
-  ctx.fillRect(4, -114 + idleY, 4, 3);
-
-  // 팔 & 콤보 연출
-  if (action === 'punch' || action === 'fireball' || action === 'kick') {
+    // 얼굴 & 하얀 머리띠
     ctx.fillStyle = '#fde047';
-    ctx.beginPath(); ctx.roundRect(8, -92 + idleY, 55, 16, 5); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, -112 + idleY, 16, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath(); ctx.arc(0, -118 + idleY, 18, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#ffffff'; // 머리띠
+    ctx.fillRect(-17, -116 + idleY, 34, 6);
 
-    // 콤보 화염 이펙트 (KOF 98 대사치 / 황물기)
-    ctx.save();
-    ctx.fillStyle = charId === 'iori' ? '#a855f7' : '#ea580c';
-    ctx.shadowColor = '#f59e0b';
-    ctx.shadowBlur = 30;
-    ctx.beginPath();
-    ctx.arc(68, -84 + idleY, 28, 0, Math.PI * 2);
-    ctx.fill();
+    // 콤보 화염 연출
+    if (action === 'punch' || action === 'fireball' || action === 'kick') {
+      ctx.fillStyle = '#fde047';
+      ctx.fillRect(8, -90 + idleY, 50, 14);
+
+      ctx.save();
+      ctx.fillStyle = '#ea580c';
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 25;
+      ctx.beginPath(); ctx.arc(65, -83 + idleY, 28, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(65, -83 + idleY, 14, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fde047';
+      ctx.fillRect(10, -88 + idleY, 18, 30);
+    }
+  } 
+  // 2. KOF 98 IORI (야가미 이오리 - 시안 A)
+  else if (charId === 'iori' || charId === 'orochi_iori') {
+    // 붉은 바지 & 가죽 끈
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-22, -48 + idleY, 18, 40);
+    ctx.fillRect(4, -48 + idleY, 18, 40);
+
+    ctx.strokeStyle = '#450a0a';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(-10, -30 + idleY); ctx.lineTo(10, -30 + idleY); ctx.stroke();
+
+    // 네이비 셔츠 & 흰 깃
+    ctx.fillStyle = '#1e1b4b';
+    ctx.fillRect(-24, -95 + idleY, 48, 50);
     ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(68, -84 + idleY, 14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    ctx.beginPath(); ctx.moveTo(-15, -95 + idleY); ctx.lineTo(0, -70 + idleY); ctx.lineTo(15, -95 + idleY); ctx.fill();
+
+    // 얼굴 & 붉은 롱헤어
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath(); ctx.arc(0, -110 + idleY, 16, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath(); ctx.arc(-2, -115 + idleY, 20, Math.PI * 0.8, Math.PI * 2.2); ctx.fill();
+    ctx.fillRect(2, -120 + idleY, 12, 24);
+
+    if (action === 'punch' || action === 'fireball' || action === 'kick') {
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(8, -92 + idleY, 50, 14);
+
+      ctx.save();
+      ctx.fillStyle = '#a855f7';
+      ctx.shadowColor = '#c084fc';
+      ctx.shadowBlur = 30;
+      ctx.beginPath(); ctx.arc(65, -85 + idleY, 26, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(65, -85 + idleY, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(8, -88 + idleY, 18, 30);
+    }
   } else {
+    ctx.fillStyle = char.color || '#3b82f6';
+    ctx.fillRect(-20, -90 + idleY, 40, 48);
+    ctx.fillStyle = char.secondaryColor || '#1e293b';
+    ctx.fillRect(-18, -42 + idleY, 36, 35);
     ctx.fillStyle = '#fde047';
-    ctx.beginPath(); ctx.roundRect(8, -90 + idleY, 20, 32, 5); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, -108 + idleY, 15, 0, Math.PI * 2); ctx.fill();
   }
 
   ctx.restore();
