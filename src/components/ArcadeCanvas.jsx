@@ -409,7 +409,243 @@ function drawDetailedFighterSprite(ctx, x, y, char, action, isFlip, tick, combo)
       ctx.restore();
     }
   }
-  // 5. 기타 캐릭터 Fallback
+  // 5. 마이 (MAI SHIRANO) - 빨간 여닌자 + 부채
+  else if (charId === 'mai') {
+    ctx.fillStyle = '#e11d48'; ctx.fillRect(-20, -10 + idleY, 14, 10); ctx.fillRect(6, -10 + idleY, 14, 10);
+    ctx.fillStyle = '#fde68a'; ctx.fillRect(-18, -48 + idleY, 14, 40); ctx.fillRect(4, -48 + idleY, 14, 40);
+    ctx.fillStyle = '#e11d48'; ctx.fillRect(-20, -90 + idleY, 40, 44);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(-12, -88 + idleY, 24, 20);
+    ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(0, -110 + idleY, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1c1917'; ctx.beginPath(); ctx.arc(0, -116 + idleY, 16, Math.PI, 0); ctx.fill();
+    // 부채
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#fde047'; ctx.fillRect(10, -92 + idleY, 45, 12);
+      ctx.save(); ctx.fillStyle = '#fde047'; ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 20;
+      ctx.beginPath(); ctx.moveTo(55, -100 + idleY); ctx.lineTo(75, -86 + idleY); ctx.lineTo(55, -72 + idleY); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(10, -88 + idleY, 16, 28);
+    }
+  }
+  // 6. 쿄지 (KYOJI) - 초록 바람 권법가
+  else if (charId === 'kyoji') {
+    ctx.fillStyle = '#10b981'; ctx.fillRect(-22, -10 + idleY, 14, 10); ctx.fillRect(8, -10 + idleY, 14, 10);
+    ctx.fillStyle = '#0f172a'; ctx.fillRect(-20, -48 + idleY, 16, 40); ctx.fillRect(6, -48 + idleY, 16, 40);
+    ctx.fillStyle = '#047857'; ctx.fillRect(-18, -90 + idleY, 36, 44);
+    ctx.fillStyle = '#10b981'; ctx.fillRect(-24, -92 + idleY, 10, 46); ctx.fillRect(14, -92 + idleY, 10, 46);
+    ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(0, -110 + idleY, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#10b981'; ctx.beginPath(); ctx.arc(0, -118 + idleY, 17, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#10b981'; ctx.fillRect(-18, -114 + idleY, 36, 5);
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(8, -88 + idleY, 48, 14);
+      ctx.save(); ctx.fillStyle = '#34d399'; ctx.shadowColor = '#10b981'; ctx.shadowBlur = 25;
+      ctx.beginPath(); ctx.arc(62, -82 + idleY, 22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(62, -82 + idleY, 10, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(10, -88 + idleY, 16, 28);
+    }
+  }
+  // 7. 섀도우 닌자 (SHADOW NINJA) - 보라 닌자 + 칼
+  else if (charId === 'shadow_ninja') {
+    ctx.fillStyle = '#374151'; ctx.fillRect(-22, -10 + idleY, 14, 10); ctx.fillRect(8, -10 + idleY, 14, 10);
+    ctx.fillStyle = '#1e1b4b'; ctx.fillRect(-20, -48 + idleY, 16, 40); ctx.fillRect(6, -48 + idleY, 16, 40);
+    ctx.fillStyle = '#1e1b4b'; ctx.fillRect(-18, -90 + idleY, 36, 44);
+    ctx.fillStyle = '#7c3aed'; ctx.fillRect(-14, -72 + idleY, 28, 5);
+    ctx.fillStyle = '#1e1b4b'; ctx.fillRect(-24, -92 + idleY, 10, 46); ctx.fillRect(14, -92 + idleY, 10, 46);
+    ctx.fillStyle = '#1e1b4b'; ctx.beginPath(); ctx.arc(0, -110 + idleY, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#4c1d95'; ctx.beginPath(); ctx.arc(0, -116 + idleY, 17, Math.PI, 0); ctx.fill();
+    // 마스크 + 빛나는 눈
+    ctx.fillStyle = '#c084fc'; ctx.fillRect(-14, -112 + idleY, 28, 5);
+    ctx.save(); ctx.fillStyle = '#ffffff'; ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 8;
+    ctx.fillRect(-8, -113 + idleY, 4, 3); ctx.fillRect(4, -113 + idleY, 4, 3);
+    ctx.restore();
+    // 스카프 날림
+    ctx.fillStyle = '#7c3aed';
+    ctx.beginPath(); ctx.moveTo(-16, -108 + idleY); ctx.quadraticCurveTo(-35, -95 + idleY + Math.sin(tick * 0.12) * 5, -30, -80 + idleY); ctx.lineTo(-16, -104 + idleY); ctx.fill();
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      // 칼 베기
+      ctx.save(); ctx.strokeStyle = '#c0c0c0'; ctx.lineWidth = 3; ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 15;
+      ctx.beginPath(); ctx.moveTo(10, -95 + idleY); ctx.lineTo(70, -70 + idleY); ctx.stroke();
+      ctx.fillStyle = '#a855f7'; ctx.globalAlpha = 0.5;
+      ctx.beginPath(); ctx.moveTo(10, -95 + idleY); ctx.lineTo(70, -70 + idleY); ctx.lineTo(70, -60 + idleY); ctx.lineTo(10, -85 + idleY); ctx.fill();
+      ctx.restore();
+    } else {
+      // 칼 등에 차고 대기
+      ctx.strokeStyle = '#c0c0c0'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-8, -100 + idleY); ctx.lineTo(-8, -55 + idleY); ctx.stroke();
+      ctx.fillStyle = '#fbbf24'; ctx.fillRect(-10, -55 + idleY, 5, 4);
+    }
+  }
+  // 8. 사이버 메카 (CYBER MECHA) - 철갑 로봇
+  else if (charId === 'cyber_mecha') {
+    // 다리 (두꺼운 장갑)
+    ctx.fillStyle = '#64748b'; ctx.fillRect(-24, -10 + idleY, 16, 12); ctx.fillRect(8, -10 + idleY, 16, 12);
+    ctx.fillStyle = '#334155'; ctx.fillRect(-3, -8 + idleY, 6, 4); ctx.fillRect(18, -8 + idleY, 6, 4);
+    ctx.fillStyle = '#64748b'; ctx.fillRect(-22, -50 + idleY, 18, 42); ctx.fillRect(6, -50 + idleY, 18, 42);
+    // 몸통 (두꺼운 아머)
+    ctx.fillStyle = '#475569'; ctx.fillRect(-22, -95 + idleY, 44, 48);
+    ctx.fillStyle = '#334155'; ctx.fillRect(-18, -90 + idleY, 36, 8);
+    // 코어 발광
+    ctx.save(); ctx.fillStyle = '#22d3ee'; ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.arc(0, -72 + idleY, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0, -72 + idleY, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    // 어깨 장갑
+    ctx.fillStyle = '#64748b'; ctx.fillRect(-28, -95 + idleY, 10, 20); ctx.fillRect(18, -95 + idleY, 10, 20);
+    // 머리 (바이저 헬멧)
+    ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.roundRect(-16, -125 + idleY, 32, 28, 6); ctx.fill();
+    ctx.fillStyle = '#22d3ee'; ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 8;
+    ctx.fillRect(-12, -114 + idleY, 24, 6);
+    ctx.shadowBlur = 0;
+    // 안테나
+    ctx.fillStyle = '#22d3ee'; ctx.fillRect(-2, -132 + idleY, 4, 8);
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      // 로켓 펀치
+      ctx.fillStyle = '#64748b'; ctx.fillRect(12, -90 + idleY, 50, 16);
+      ctx.save(); ctx.fillStyle = '#22d3ee'; ctx.shadowColor = '#06b6d4'; ctx.shadowBlur = 30;
+      ctx.beginPath(); ctx.arc(68, -82 + idleY, 22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(68, -82 + idleY, 10, 0, Math.PI * 2); ctx.fill();
+      // 로켓 불꽃
+      ctx.fillStyle = '#f97316'; ctx.globalAlpha = 0.7;
+      ctx.beginPath(); ctx.moveTo(12, -86 + idleY); ctx.lineTo(-10, -82 + idleY); ctx.lineTo(12, -78 + idleY); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#64748b'; ctx.fillRect(12, -90 + idleY, 16, 30);
+      ctx.fillStyle = '#64748b'; ctx.fillRect(-28, -90 + idleY, 16, 30);
+    }
+  }
+  // 9. 쿨라 (KURA) - 얼음 여왕
+  else if (charId === 'kura') {
+    ctx.fillStyle = '#e0f2fe'; ctx.fillRect(-20, -10 + idleY, 14, 10); ctx.fillRect(6, -10 + idleY, 14, 10);
+    ctx.fillStyle = '#38bdf8'; ctx.fillRect(-18, -48 + idleY, 14, 40); ctx.fillRect(4, -48 + idleY, 14, 40);
+    ctx.fillStyle = '#0284c7'; ctx.fillRect(-20, -90 + idleY, 40, 44);
+    ctx.fillStyle = '#e0f2fe'; ctx.fillRect(-14, -88 + idleY, 28, 8);
+    ctx.fillStyle = '#f9e4c8'; ctx.beginPath(); ctx.arc(0, -110 + idleY, 14, 0, Math.PI * 2); ctx.fill();
+    // 긴 파란 머리카락
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath(); ctx.arc(0, -118 + idleY, 18, Math.PI, 0); ctx.fill();
+    ctx.fillRect(-18, -114 + idleY, 6, 30); ctx.fillRect(12, -114 + idleY, 6, 30);
+    ctx.fillRect(-20, -110 + idleY, 4, 25); ctx.fillRect(16, -110 + idleY, 4, 25);
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#f9e4c8'; ctx.fillRect(8, -90 + idleY, 45, 12);
+      ctx.save(); ctx.fillStyle = '#38bdf8'; ctx.shadowColor = '#0ea5e9'; ctx.shadowBlur = 25;
+      ctx.beginPath(); ctx.arc(60, -84 + idleY, 24, 0, Math.PI * 2); ctx.fill();
+      // 얼음 결정
+      ctx.fillStyle = '#e0f2fe'; ctx.globalAlpha = 0.8;
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * Math.PI * 2 + tick * 0.08;
+        ctx.fillRect(60 + Math.cos(a) * 18, -84 + idleY + Math.sin(a) * 18, 5, 5);
+      }
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#f9e4c8'; ctx.fillRect(10, -88 + idleY, 16, 28);
+    }
+  }
+  // 10. 루갈 (RUGAR) - 카이저 제왕
+  else if (charId === 'rugar') {
+    ctx.fillStyle = '#eab308'; ctx.fillRect(-24, -10 + idleY, 16, 12); ctx.fillRect(8, -10 + idleY, 16, 12);
+    ctx.fillStyle = '#1c1917'; ctx.fillRect(-22, -50 + idleY, 18, 42); ctx.fillRect(6, -50 + idleY, 18, 42);
+    ctx.fillStyle = '#854d0e'; ctx.fillRect(-20, -95 + idleY, 40, 48);
+    ctx.fillStyle = '#eab308'; ctx.fillRect(-16, -93 + idleY, 32, 6);
+    ctx.fillStyle = '#854d0e'; ctx.fillRect(-26, -95 + idleY, 10, 48); ctx.fillRect(16, -95 + idleY, 10, 48);
+    ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(0, -112 + idleY, 16, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#eab308'; ctx.beginPath(); ctx.arc(0, -120 + idleY, 18, Math.PI, 0); ctx.fill();
+    // 안대
+    ctx.fillStyle = '#1c1917'; ctx.fillRect(4, -115 + idleY, 10, 5);
+    ctx.strokeStyle = '#1c1917'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(14, -113 + idleY); ctx.lineTo(16, -118 + idleY); ctx.stroke();
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(10, -92 + idleY, 50, 16);
+      ctx.save(); ctx.fillStyle = '#eab308'; ctx.shadowColor = '#d97706'; ctx.shadowBlur = 30;
+      // 카이저 웨이브
+      ctx.beginPath(); ctx.arc(68, -84 + idleY, 26, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(68, -84 + idleY, 14, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(68, -84 + idleY, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(12, -90 + idleY, 16, 30);
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(-28, -90 + idleY, 16, 30);
+    }
+  }
+  // 11. 아테나 (ATHENA) - 사이코 솔저
+  else if (charId === 'athena') {
+    ctx.fillStyle = '#e879f9'; ctx.fillRect(-20, -10 + idleY, 14, 10); ctx.fillRect(6, -10 + idleY, 14, 10);
+    ctx.fillStyle = '#e879f9'; ctx.fillRect(-18, -48 + idleY, 14, 40); ctx.fillRect(4, -48 + idleY, 14, 40);
+    ctx.fillStyle = '#d946ef'; ctx.fillRect(-18, -90 + idleY, 36, 44);
+    ctx.fillStyle = '#fae8ff'; ctx.fillRect(-10, -88 + idleY, 20, 6);
+    ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(0, -110 + idleY, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#7c3aed'; ctx.beginPath(); ctx.arc(0, -118 + idleY, 17, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#7c3aed'; ctx.fillRect(-16, -110 + idleY, 5, 22); ctx.fillRect(11, -110 + idleY, 5, 22);
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(8, -88 + idleY, 42, 12);
+      ctx.save(); ctx.fillStyle = '#d946ef'; ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 25;
+      ctx.beginPath(); ctx.arc(58, -82 + idleY, 24, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fae8ff'; ctx.beginPath(); ctx.arc(58, -82 + idleY, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(10, -86 + idleY, 14, 26);
+    }
+  }
+  // 12. 랄프 (RALF) - 이카리 군인
+  else if (charId === 'ralf') {
+    ctx.fillStyle = '#1c1917'; ctx.fillRect(-22, -10 + idleY, 14, 10); ctx.fillRect(8, -10 + idleY, 14, 10);
+    ctx.fillStyle = '#4d7c0f'; ctx.fillRect(-20, -48 + idleY, 16, 40); ctx.fillRect(6, -48 + idleY, 16, 40);
+    ctx.fillStyle = '#4d7c0f'; ctx.fillRect(-18, -90 + idleY, 36, 44);
+    ctx.fillStyle = '#365314'; ctx.fillRect(-8, -88 + idleY, 16, 8);
+    ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(0, -110 + idleY, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1c1917'; ctx.beginPath(); ctx.arc(0, -118 + idleY, 17, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#dc2626'; ctx.fillRect(-16, -114 + idleY, 32, 5);
+    ctx.fillStyle = '#4d7c0f'; ctx.fillRect(-24, -92 + idleY, 10, 44); ctx.fillRect(14, -92 + idleY, 10, 44);
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(10, -90 + idleY, 52, 16);
+      ctx.save(); ctx.fillStyle = '#ef4444'; ctx.shadowColor = '#dc2626'; ctx.shadowBlur = 25;
+      ctx.beginPath(); ctx.arc(68, -82 + idleY, 24, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(68, -82 + idleY, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(12, -88 + idleY, 16, 28);
+    }
+  }
+  // 13. 레오나 (LEONA) - 이카리 여전사
+  else if (charId === 'leona') {
+    ctx.fillStyle = '#1c1917'; ctx.fillRect(-20, -10 + idleY, 14, 10); ctx.fillRect(6, -10 + idleY, 14, 10);
+    ctx.fillStyle = '#1e3a5f'; ctx.fillRect(-18, -48 + idleY, 14, 40); ctx.fillRect(4, -48 + idleY, 14, 40);
+    ctx.fillStyle = '#1e3a5f'; ctx.fillRect(-18, -90 + idleY, 36, 44);
+    ctx.fillStyle = '#60a5fa'; ctx.fillRect(-12, -72 + idleY, 24, 4);
+    ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(0, -110 + idleY, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1d4ed8'; ctx.beginPath(); ctx.arc(0, -118 + idleY, 17, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#1d4ed8'; ctx.fillRect(-16, -110 + idleY, 5, 20); ctx.fillRect(11, -110 + idleY, 5, 20);
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(8, -88 + idleY, 44, 12);
+      ctx.save(); ctx.fillStyle = '#3b82f6'; ctx.shadowColor = '#2563eb'; ctx.shadowBlur = 25;
+      ctx.beginPath(); ctx.arc(58, -82 + idleY, 22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#bfdbfe'; ctx.beginPath(); ctx.arc(58, -82 + idleY, 10, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(10, -86 + idleY, 14, 26);
+    }
+  }
+  // 14. 료 (RYO) - 극한류 공수도
+  else if (charId === 'ryo') {
+    ctx.fillStyle = '#1c1917'; ctx.fillRect(-22, -10 + idleY, 14, 10); ctx.fillRect(8, -10 + idleY, 14, 10);
+    ctx.fillStyle = '#f97316'; ctx.fillRect(-20, -48 + idleY, 16, 40); ctx.fillRect(6, -48 + idleY, 16, 40);
+    ctx.fillStyle = '#f97316'; ctx.fillRect(-16, -90 + idleY, 32, 45);
+    ctx.fillStyle = '#1c1917'; ctx.fillRect(-10, -86 + idleY, 20, 5);
+    ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(0, -112 + idleY, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(0, -118 + idleY, 17, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#f97316'; ctx.fillRect(-24, -92 + idleY, 12, 46); ctx.fillRect(12, -92 + idleY, 12, 46);
+    if (action === 'punch' || action === 'kick' || action === 'fireball') {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(8, -90 + idleY, 48, 14);
+      ctx.save(); ctx.fillStyle = '#f97316'; ctx.shadowColor = '#ea580c'; ctx.shadowBlur = 25;
+      ctx.beginPath(); ctx.arc(62, -83 + idleY, 24, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(62, -83 + idleY, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fde68a'; ctx.fillRect(10, -88 + idleY, 16, 28);
+    }
+  }
+  // 99. 기타 캐릭터 Fallback (신규 캐릭 추가시)
   else {
     ctx.fillStyle = char.color || '#3b82f6'; ctx.fillRect(-20, -90 + idleY, 40, 48);
     ctx.fillStyle = char.secondaryColor || '#1e293b'; ctx.fillRect(-18, -42 + idleY, 36, 35);

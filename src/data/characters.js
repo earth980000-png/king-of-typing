@@ -411,10 +411,154 @@ export const CHARACTERS = [
         <rect x="54" y="88" width="18" height="8" fill="#eab308" rx="2"/>
       </svg>
     `
+  },
+  {
+    id: "athena",
+    name: "ATHENA",
+    koreanName: "사이코 아테나",
+    title: "사이코 솔저 아이돌",
+    grade: "Rare",
+    color: "#d946ef",
+    secondaryColor: "#7c3aed",
+    attackMultiplier: 1.14,
+    effectDesc: "사이코 볼 에너지 연사",
+    goldBonus: 0.07,
+    avatarSvg: `
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <rect width="100" height="100" fill="#581c87"/>
+        <rect x="24" y="4" width="52" height="20" fill="#7c3aed" rx="3"/>
+        <rect x="22" y="10" width="8" height="22" fill="#7c3aed"/>
+        <rect x="70" y="10" width="8" height="22" fill="#7c3aed"/>
+        <rect x="32" y="22" width="36" height="20" fill="#fde68a" rx="3"/>
+        <circle cx="42" cy="30" r="3" fill="#7c3aed"/>
+        <circle cx="58" cy="30" r="3" fill="#7c3aed"/>
+        <rect x="28" y="44" width="44" height="24" fill="#d946ef" rx="2"/>
+        <rect x="36" y="44" width="28" height="6" fill="#fae8ff"/>
+        <rect x="30" y="68" width="16" height="20" fill="#e879f9" rx="1"/>
+        <rect x="54" y="68" width="16" height="20" fill="#e879f9" rx="1"/>
+        <rect x="28" y="88" width="18" height="8" fill="#d946ef" rx="2"/>
+        <rect x="54" y="88" width="18" height="8" fill="#d946ef" rx="2"/>
+      </svg>
+    `
+  },
+  {
+    id: "ralf",
+    name: "RALF JONES",
+    koreanName: "이카리 랄프",
+    title: "갤럭티카 팬텀 군인",
+    grade: "Rare",
+    color: "#4d7c0f",
+    secondaryColor: "#365314",
+    attackMultiplier: 1.20,
+    effectDesc: "갤럭티카 팬텀 폭발 주먹",
+    goldBonus: 0.10,
+    avatarSvg: `
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <rect width="100" height="100" fill="#1a2e05"/>
+        <rect x="28" y="6" width="44" height="14" fill="#1c1917" rx="2"/>
+        <rect x="26" y="14" width="48" height="5" fill="#dc2626"/>
+        <rect x="32" y="20" width="36" height="22" fill="#fde68a" rx="3"/>
+        <circle cx="42" cy="30" r="3" fill="#1c1917"/>
+        <circle cx="58" cy="30" r="3" fill="#1c1917"/>
+        <rect x="28" y="44" width="44" height="24" fill="#4d7c0f" rx="2"/>
+        <rect x="38" y="44" width="24" height="8" fill="#365314"/>
+        <rect x="20" y="46" width="12" height="18" fill="#4d7c0f" rx="1"/>
+        <rect x="68" y="46" width="12" height="18" fill="#4d7c0f" rx="1"/>
+        <rect x="30" y="68" width="16" height="20" fill="#4d7c0f" rx="1"/>
+        <rect x="54" y="68" width="16" height="20" fill="#4d7c0f" rx="1"/>
+        <rect x="28" y="88" width="18" height="8" fill="#1c1917" rx="2"/>
+        <rect x="54" y="88" width="18" height="8" fill="#1c1917" rx="2"/>
+      </svg>
+    `
+  },
+  {
+    id: "leona",
+    name: "LEONA",
+    koreanName: "이카리 레오나",
+    title: "달빛 전사 이카리",
+    grade: "Hidden",
+    color: "#1d4ed8",
+    secondaryColor: "#1e3a5f",
+    attackMultiplier: 1.26,
+    effectDesc: "V 슬래셔 달빛 참격",
+    goldBonus: 0.16,
+    avatarSvg: `
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <rect width="100" height="100" fill="#0c1b3a"/>
+        <rect x="24" y="4" width="52" height="20" fill="#1d4ed8" rx="3"/>
+        <rect x="22" y="10" width="8" height="20" fill="#1d4ed8"/>
+        <rect x="70" y="10" width="8" height="20" fill="#1d4ed8"/>
+        <rect x="32" y="22" width="36" height="20" fill="#fde68a" rx="3"/>
+        <circle cx="42" cy="30" r="3" fill="#1e3a5f"/>
+        <circle cx="58" cy="30" r="3" fill="#1e3a5f"/>
+        <rect x="28" y="44" width="44" height="24" fill="#1e3a5f" rx="2"/>
+        <rect x="36" y="56" width="28" height="4" fill="#60a5fa"/>
+        <rect x="30" y="68" width="16" height="20" fill="#1e3a5f" rx="1"/>
+        <rect x="54" y="68" width="16" height="20" fill="#1e3a5f" rx="1"/>
+        <rect x="28" y="88" width="18" height="8" fill="#1c1917" rx="2"/>
+        <rect x="54" y="88" width="18" height="8" fill="#1c1917" rx="2"/>
+      </svg>
+    `
+  },
+  {
+    id: "ryo",
+    name: "RYO SAKAZARI",
+    koreanName: "극한류 료",
+    title: "무적 극한류 공수도",
+    grade: "Rare",
+    color: "#f97316",
+    secondaryColor: "#c2410c",
+    attackMultiplier: 1.17,
+    effectDesc: "호황권 기합 폭렬 연타",
+    goldBonus: 0.09,
+    avatarSvg: `
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <rect width="100" height="100" fill="#7c2d12"/>
+        <rect x="28" y="6" width="44" height="14" fill="#fbbf24" rx="2"/>
+        <rect x="32" y="20" width="36" height="22" fill="#fde68a" rx="3"/>
+        <circle cx="42" cy="30" r="3" fill="#1c1917"/>
+        <circle cx="58" cy="30" r="3" fill="#1c1917"/>
+        <rect x="28" y="44" width="44" height="24" fill="#f97316" rx="2"/>
+        <rect x="38" y="44" width="24" height="5" fill="#1c1917"/>
+        <rect x="20" y="46" width="12" height="18" fill="#f97316" rx="1"/>
+        <rect x="68" y="46" width="12" height="18" fill="#f97316" rx="1"/>
+        <rect x="30" y="68" width="16" height="20" fill="#f97316" rx="1"/>
+        <rect x="54" y="68" width="16" height="20" fill="#f97316" rx="1"/>
+        <rect x="28" y="88" width="18" height="8" fill="#1c1917" rx="2"/>
+        <rect x="54" y="88" width="18" height="8" fill="#1c1917" rx="2"/>
+      </svg>
+    `
+  },
+  {
+    id: "robert",
+    name: "ROBERT GARSIA",
+    koreanName: "극한류 로버트",
+    title: "극한류 이탈리안 킥",
+    grade: "Common",
+    color: "#1c1917",
+    secondaryColor: "#292524",
+    attackMultiplier: 1.0,
+    effectDesc: "용격권 & 비연선풍각 연속기",
+    goldBonus: 0,
+    avatarSvg: `
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <rect width="100" height="100" fill="#1c1917"/>
+        <rect x="28" y="6" width="44" height="14" fill="#292524" rx="2"/>
+        <rect x="32" y="20" width="36" height="22" fill="#fde68a" rx="3"/>
+        <circle cx="42" cy="30" r="3" fill="#292524"/>
+        <circle cx="58" cy="30" r="3" fill="#292524"/>
+        <rect x="28" y="44" width="44" height="24" fill="#1c1917" rx="2"/>
+        <rect x="38" y="44" width="24" height="5" fill="#292524"/>
+        <rect x="30" y="68" width="16" height="20" fill="#1c1917" rx="1"/>
+        <rect x="54" y="68" width="16" height="20" fill="#1c1917" rx="1"/>
+        <rect x="28" y="88" width="18" height="8" fill="#292524" rx="2"/>
+        <rect x="54" y="88" width="18" height="8" fill="#292524" rx="2"/>
+      </svg>
+    `
   }
 ];
 
-// 요청하신 뽑기 확률: 레전더리 5%, 레어 20%, 히든 15%, 커먼 60%
+// 뽑기 확률: 레전더리 5%, 레어 20%, 히든 15%, 커먼 60%
 export const GACHA_RATES = {
   Legendary: 0.05,
   Rare: 0.20,
