@@ -1,4 +1,4 @@
-// 초등학교 6학년 및 아케이드 감성의 타자 연습 데이터셋 (한국어 & 영어 - 한자 100% 제거)
+// 킹 오브 타이핑 - 언어별 100% 언어 분리 데이터셋 (한국어 버전: 100% 한글만 / 영어 버전: 100% 영어만)
 
 export const TYPING_DATA = {
   ko: {
@@ -8,14 +8,15 @@ export const TYPING_DATA = {
       "대한민국", "무궁화", "독도", "한글날", "훈민정음", "행복", "우정", "협동",
       "태권도", "아리랑", "동해물", "백두산", "한라산", "탐험가", "우주선", "인공지능",
       "알고리즘", "소프트웨어", "프로그래밍", "컴퓨터", "메타버스", "디지털", "지혜", "용기",
-      "정의", "평화", "희망", "열정", "창의력", "상상력", "도전", "성공", "열매", "무지개"
+      "정의", "평화", "희망", "열정", "창의력", "상상력", "도전", "성공", "열매", "무지개",
+      "청룡", "주작", "백호", "현무", "단군왕검", "홍익인간", "세종대왕", "이순신", "강감찬"
     ],
     short: [
       "뜨거운 불꽃으로 승리를 차지하라!",
       "연속 콤보를 성공시키고 초필살기를 발동하라!",
-      "정확하고 빠른 타자로 상대를 K.O 시켜라!",
+      "정확하고 빠른 타자로 상대를 한 방에 쓰러뜨려라!",
       "지혜는 위험을 피하는 가장 큰 무기이다.",
-      "나의 꿈은 세계 최고의 프로그래머가 되는 것이다.",
+      "나의 꿈은 세계 최고의 컴퓨터 전문가가 되는 것이다.",
       "백두산 산기슭에 맑은 바람이 불어온다.",
       "끝없는 도전 정신이 위대한 성공을 만든다.",
       "독도는 우리 땅이며 아름다운 우리의 섬이다.",
@@ -41,7 +42,8 @@ export const TYPING_DATA = {
     word: [
       "FIGHTER", "COMBO", "VICTORY", "CHAMPION", "KNOCKOUT", "SPECIAL", "ARCADE", "POWER",
       "DRAGON", "THUNDER", "STRIKE", "LEGEND", "FUTURE", "ACTION", "ENERGY", "MASTER",
-      "HERO", "SKILL", "SPEED", "SHADOW", "BLAST", "COURAGE", "FLAME", "GLORY", "JUSTICE"
+      "HERO", "SKILL", "SPEED", "SHADOW", "BLAST", "COURAGE", "FLAME", "GLORY", "JUSTICE",
+      "MAGIC", "SPIRIT", "SHIELD", "SWORD", "HONOR", "FORTUNE", "BRAVERY", "DESTINY"
     ],
     short: [
       "Unleash the ultimate combo and knock out your rival!",
@@ -49,7 +51,8 @@ export const TYPING_DATA = {
       "Never give up on your dreams no matter what happens.",
       "Practice makes perfect in high speed arcade typing.",
       "The future belongs to those who believe in their dreams.",
-      "Knowledge is the greatest power in the modern digital world."
+      "Knowledge is the greatest power in the modern digital world.",
+      "Believe in yourself and face every challenge with courage."
     ],
     long: [
       "The only limit to our realization of tomorrow will be our doubts of today. Let us move forward with strong faith.",
