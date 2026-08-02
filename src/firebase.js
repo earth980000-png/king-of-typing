@@ -10,27 +10,25 @@ import {
 import { getDatabase, ref, set, get, child, onValue, push, remove } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || "",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || ""
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC8yRjTbV40kxAxKWtVunKBes5iUQsuuvQ",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "king-of-typing-edbb2.firebaseapp.com",
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || "https://king-of-typing-edbb2-default-rtdb.firebaseio.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "king-of-typing-edbb2",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "king-of-typing-edbb2.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "186834381011",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:186834381011:web:678940dba06a7b872a0c26"
 };
 
 let app, auth, db;
 let isFirebaseConfigured = false;
 
-if (import.meta.env.VITE_FIREBASE_API_KEY && import.meta.env.VITE_FIREBASE_API_KEY !== "") {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getDatabase(app);
-    isFirebaseConfigured = true;
-  } catch (error) {
-    console.warn("Firebase initialized in fallback mode:", error);
-  }
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getDatabase(app);
+  isFirebaseConfigured = true;
+} catch (error) {
+  console.warn("Firebase initialized in fallback mode:", error);
 }
 
 // 안전한 인증 상태 수신
