@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        // 본인 UID의 데이터만 읽고 쓰기 가능
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "matchmaking": {
+      "$team": {
+        // 팀별 실시간 대기열은 인증된 본인 슬롯만 작성 가능
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "rooms": {
+      "$roomId": {
+        // 1v1 대전 룸은 매칭 참여자만 읽기/쓰기 가능
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}
