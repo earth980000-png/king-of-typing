@@ -20,7 +20,7 @@ import confetti from 'canvas-confetti';
 export function App() {
   const [user, setUser] = useState(null);
   
-  // 로컬스토리지 백업을 활용한 초기화 상태 복원 (창을 새로 열어도 무조건 보존)
+  // 로컬스토리지 백업을 활용한 초기화 상태 복원
   const getInitialState = () => {
     try {
       const saved = localStorage.getItem('kot_user_data');
@@ -86,7 +86,7 @@ export function App() {
     return () => unsub();
   }, []);
 
-  // 로컬스토리지 및 Firebase 동시 세이브 (데이터 로드 완료 후에만 세이브 락 해제)
+  // 로컬스토리지 및 Firebase 동시 세이브
   useEffect(() => {
     const dataToSave = { gold, ownedCharIds, equippedCharId, maxCpm };
     try {
@@ -100,6 +100,23 @@ export function App() {
       });
     }
   }, [gold, ownedCharIds, equippedCharId, maxCpm, user, isDataLoaded]);
+
+  // 결과창 팝업 시 엔터(Enter) 키로 다음 스테이지 또는 재도전 자동 진행!
+  useEffect(() => {
+    const handleEnterKey = (e) => {
+      if (!gameOverResult) return;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (gameMode === 'solo' && gameOverResult === 'win' && stage < 7) {
+          handleNextStage();
+        } else {
+          handleRetryStage();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleEnterKey);
+    return () => window.removeEventListener('keydown', handleEnterKey);
+  }, [gameOverResult, gameMode, stage]);
 
   const equippedChar = CHARACTERS.find(c => c.id === equippedCharId) || CHARACTERS[0];
 
@@ -244,13 +261,14 @@ export function App() {
     });
   };
 
+  // 승리 및 패배 시 동일하게 결과창 팝업 출력 & 타수 통계 산출
   const handleGameOver = (result) => {
     let calculatedAvgCpm = 0;
     if (matchCpmList.length > 0) {
       const sum = matchCpmList.reduce((acc, val) => acc + val, 0);
       calculatedAvgCpm = Math.round(sum / matchCpmList.length);
     } else {
-      calculatedAvgCpm = 320;
+      calculatedAvgCpm = 280;
     }
     setAvgCpm(calculatedAvgCpm);
 
@@ -522,7 +540,7 @@ export function App() {
           </div>
         )}
 
-        {/* GameOver Result Window */}
+        {/* GameOver Result Window (승리 및 패배 시 모두 결과 팝업 표시!) */}
         {gameOverResult && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0c1017] border-2 border-amber-500/80 rounded-2xl max-w-md w-full p-6 text-center shadow-[0_0_50px_rgba(245,166,35,0.4)] animate-bounce">
@@ -533,9 +551,10 @@ export function App() {
               <p className="text-xs font-mono text-slate-400 mb-4">
                 {gameOverResult === 'win' 
                   ? (stage === 7 ? '🎉 ALL STAGES CLEARED! CHAMPION!' : `STAGE ${stage} CLEAR!`) 
-                  : 'TRY AGAIN WITH HIGHER TYPING SPEED!'}
+                  : `STAGE ${stage} FAILED! PRESS ENTER TO RETRY`}
               </p>
 
+              {/* 기록 결과 통계 */}
               <div className="bg-[#05070c] p-4 rounded-xl border border-slate-800 mb-6 text-left text-xs font-mono space-y-2.5">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                   <span className="text-slate-400 font-bold">⌨️ 이번 판 평균 타수:</span>
@@ -553,6 +572,7 @@ export function App() {
                 </div>
               </div>
 
+              {/* 결과창 버튼 영역 (엔터 키 입력 연동 지원) */}
               <div className="flex gap-3">
                 <button
                   onClick={goToMainMenu}
@@ -565,14 +585,14 @@ export function App() {
                     onClick={handleNextStage}
                     className="flex-1 bg-[#f5a623] hover:bg-amber-400 text-black py-3 rounded-lg font-mono font-black text-xs uppercase shadow-[0_0_15px_rgba(245,166,35,0.4)] transition-all transform hover:scale-105"
                   >
-                    다음 스테이지! ⚔️ (ST.{stage + 1})
+                    다음 스테이지! ⚔️ (Enter)
                   </button>
                 ) : (
                   <button
                     onClick={handleRetryStage}
                     className="flex-1 bg-[#f5a623] hover:bg-amber-400 text-black py-3 rounded-lg font-mono font-black text-xs uppercase shadow-[0_0_15px_rgba(245,166,35,0.4)] transition-all transform hover:scale-105"
                   >
-                    다시 도전 🥊
+                    다시 도전 🥊 (Enter)
                   </button>
                 )}
               </div>
