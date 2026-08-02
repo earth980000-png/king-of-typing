@@ -270,7 +270,7 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#05070c] text-slate-100 flex flex-col font-sans select-none border-t-4 border-[#f5a623]">
-      {/* KOF Style Arcade Top Bar */}
+      {/* KOF Style Arcade Header */}
       <header className="bg-[#0a0d14]/95 border-b border-amber-500/40 py-3 px-6 flex justify-between items-center shadow-[0_4px_20px_rgba(0,0,0,0.8)] backdrop-blur-xl sticky top-0 z-40">
         <div className="flex items-center gap-4">
           <div 
@@ -370,38 +370,59 @@ export function App() {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full">
         {gameMode === 'menu' && (
-          <div className="w-full text-center flex flex-col items-center py-6 animate-fadeIn">
-            {/* 🥊 KOF 98 오락실 타이틀 스테이지 렌더링 🥊 */}
-            <div className="relative w-full max-w-3xl bg-gradient-to-b from-[#100720] via-[#090c16] to-[#05070c] border-2 border-amber-500/50 rounded-2xl p-8 mb-8 shadow-[0_0_50px_rgba(245,166,35,0.25)] overflow-hidden">
+          <div className="w-full text-center flex flex-col items-center py-4 animate-fadeIn">
+            {/* 🥊 KOF 98 타이틀 화면 복각 스타일 (화려한 네온 레트로 스테이지 배경) 🥊 */}
+            <div 
+              className="relative w-full max-w-3xl border-4 border-amber-500 rounded-3xl p-8 mb-8 shadow-[0_0_60px_rgba(245,166,35,0.4)] overflow-hidden bg-cover bg-center"
+              style={{ 
+                backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(2, 6, 23, 0.85)), url("https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200&auto=format&fit=crop")` 
+              }}
+            >
               
-              {/* Neon Grid Overlay */}
-              <div className="absolute inset-0 bg-[radial-gradient(#f5a623_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+              {/* Dynamic KOF Spotlights */}
+              <div className="absolute -top-24 left-1/4 w-48 h-96 bg-amber-400/20 blur-3xl transform -rotate-45 pointer-events-none animate-pulse" />
+              <div className="absolute -top-24 right-1/4 w-48 h-96 bg-red-600/20 blur-3xl transform rotate-45 pointer-events-none animate-pulse" />
 
-              {/* Top Banner Tag */}
-              <div className="inline-flex items-center gap-2 bg-[#1a1326] border border-amber-400/60 px-4 py-1.5 rounded-full text-amber-300 text-xs font-mono font-black uppercase tracking-widest mb-6 shadow-[0_0_15px_rgba(245,166,35,0.3)]">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                <span>ARCADE RETRO BATTLE 98 - ULTIMATE MATCH</span>
+              {/* KOF Title Badge */}
+              <div className="inline-flex items-center gap-2 bg-black/80 border-2 border-amber-400 px-5 py-1.5 rounded-full text-amber-300 text-xs font-mono font-black uppercase tracking-widest mb-6 shadow-[0_0_20px_#f59e0b]">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
+                <span>KOF '98 RETRO TYPING CHAMPIONSHIP</span>
               </div>
 
-              {/* Main Title Logo */}
+              {/* Title Text Banner */}
               <div className="relative mb-6">
-                <h1 className="text-6xl md:text-7xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-red-600 drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]">
+                <h1 className="text-6xl md:text-7xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-red-500 drop-shadow-[0_6px_15px_rgba(0,0,0,1)]">
                   킹 오브 타이핑
                 </h1>
-                <p className="text-xl md:text-2xl font-black italic text-amber-200 tracking-widest font-mono mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  KING OF TYPING : K.O.T
-                </p>
+                <div className="text-2xl md:text-3xl font-black italic text-amber-300 tracking-widest font-mono mt-1 drop-shadow-[0_0_10px_#f59e0b] flex items-center justify-center gap-3">
+                  <span className="text-red-500">THE KING OF</span>
+                  <span className="text-yellow-300">FIGHTERS</span>
+                  <span className="text-amber-400">'98</span>
+                </div>
               </div>
 
-              {/* Sub Description */}
-              <p className="text-slate-300 text-sm max-w-lg mx-auto font-sans leading-relaxed mb-6 bg-black/60 p-3.5 rounded-xl border border-slate-800">
-                타격 모드 <strong className="text-amber-400 font-mono">[1]단어</strong>, <strong className="text-orange-400 font-mono">[2]짧은문장</strong>, <strong className="text-rose-400 font-mono">[3]긴문장(필살)</strong> 키를 전환하고 
-                초스피드 타자로 상대를 KO 시키세요!
+              {/* Fighter VS Avatars Showcase Preview */}
+              <div className="flex justify-center items-center gap-6 mb-6">
+                <div className="w-14 h-14 rounded-full border-2 border-amber-400 bg-slate-900/90 overflow-hidden shadow-[0_0_15px_#f59e0b]">
+                  <div dangerouslySetInnerHTML={{ __html: CHARACTERS[0].avatarSvg }} className="w-full h-full" />
+                </div>
+                <div className="font-black italic text-2xl text-red-500 animate-bounce">VS</div>
+                <div className="w-14 h-14 rounded-full border-2 border-red-500 bg-slate-900/90 overflow-hidden shadow-[0_0_15px_#ef4444]">
+                  <div dangerouslySetInnerHTML={{ __html: CHARACTERS[1].avatarSvg }} className="w-full h-full" />
+                </div>
+              </div>
+
+              {/* Sub Description Box */}
+              <p className="text-slate-200 text-xs md:text-sm max-w-lg mx-auto font-sans font-semibold leading-relaxed mb-6 bg-black/80 p-3.5 rounded-xl border border-amber-500/40 backdrop-blur-sm">
+                숫자 <strong className="text-amber-400 font-mono">[1]약공격(단어)</strong>, <strong className="text-orange-400 font-mono">[2]중공격(짧은문장)</strong>, <strong className="text-rose-400 font-mono">[3]강공격(필살기)</strong> 키를 
+                전환하고 타자로 상대 격투가를 KO 시키세요!
               </p>
 
-              {/* Press Start / Coin Insert Animation */}
-              <div className="text-amber-400 font-mono font-black text-sm tracking-widest animate-pulse flex items-center justify-center gap-2">
-                <span>▶</span> PRESS ANY MODE BUTTON TO START FIGHT <span>◀</span>
+              {/* Coin Insert Animation */}
+              <div className="text-yellow-300 font-mono font-black text-sm tracking-widest animate-pulse flex items-center justify-center gap-2 bg-black/70 py-1.5 px-4 rounded-lg border border-yellow-500/40 w-max mx-auto shadow-md">
+                <span>INSERT COIN</span>
+                <span className="text-slate-400">•</span>
+                <span>PRESS BUTTON TO PLAY</span>
               </div>
             </div>
 
