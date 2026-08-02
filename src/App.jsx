@@ -101,7 +101,7 @@ export function App() {
     ? { id: 'sandbag', name: '연습용 샌드백', color: '#94a3b8', grade: 'Common', attackMultiplier: 0 }
     : getEnemyCharForStage(stage);
 
-  // 솔로 플레이 AI 난이도 하향
+  // 솔로 플레이 AI 난이도
   useEffect(() => {
     if (gameMode !== 'solo' || enemyHp <= 0 || playerHp <= 0) return;
 
@@ -168,6 +168,21 @@ export function App() {
     setGameMode('multi');
   };
 
+  const goToMainMenu = () => {
+    setGameOverResult(null);
+    setGameMode('menu');
+  };
+
+  const handleNextStage = () => {
+    setGameOverResult(null);
+    startSoloGame(stage + 1);
+  };
+
+  const handleRetryStage = () => {
+    setGameOverResult(null);
+    startSoloGame(stage);
+  };
+
   const handlePlayerAttack = ({ type, cpm: attackCpm }) => {
     let actionType = 'punch';
     let baseDamage = 6;
@@ -232,7 +247,7 @@ export function App() {
 
     if (result === 'win') {
       soundEngine.playVictory();
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+      confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
 
       const baseGold = 150 + stage * 30;
       const goldBonusMult = 1 + (equippedChar.goldBonus || 0);
@@ -274,7 +289,7 @@ export function App() {
       <header className="bg-[#0a0d14]/95 border-b border-amber-500/40 py-3 px-6 flex justify-between items-center shadow-[0_4px_20px_rgba(0,0,0,0.8)] backdrop-blur-xl sticky top-0 z-40">
         <div className="flex items-center gap-4">
           <div 
-            onClick={() => setGameMode('menu')} 
+            onClick={goToMainMenu} 
             className="cursor-pointer flex items-center gap-3 group"
           >
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,166,35,0.6)] group-hover:scale-110 transition-transform">
@@ -371,25 +386,21 @@ export function App() {
       <main className="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full">
         {gameMode === 'menu' && (
           <div className="w-full text-center flex flex-col items-center py-4 animate-fadeIn">
-            {/* 🥊 KOF 98 타이틀 화면 복각 스타일 (화려한 네온 레트로 스테이지 배경) 🥊 */}
+            {/* KOF 98 아케이드 스포트라이트 스테이지 */}
             <div 
               className="relative w-full max-w-3xl border-4 border-amber-500 rounded-3xl p-8 mb-8 shadow-[0_0_60px_rgba(245,166,35,0.4)] overflow-hidden bg-cover bg-center"
               style={{ 
                 backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(2, 6, 23, 0.85)), url("https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200&auto=format&fit=crop")` 
               }}
             >
-              
-              {/* Dynamic KOF Spotlights */}
               <div className="absolute -top-24 left-1/4 w-48 h-96 bg-amber-400/20 blur-3xl transform -rotate-45 pointer-events-none animate-pulse" />
               <div className="absolute -top-24 right-1/4 w-48 h-96 bg-red-600/20 blur-3xl transform rotate-45 pointer-events-none animate-pulse" />
 
-              {/* KOF Title Badge */}
               <div className="inline-flex items-center gap-2 bg-black/80 border-2 border-amber-400 px-5 py-1.5 rounded-full text-amber-300 text-xs font-mono font-black uppercase tracking-widest mb-6 shadow-[0_0_20px_#f59e0b]">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
                 <span>KOF '98 RETRO TYPING CHAMPIONSHIP</span>
               </div>
 
-              {/* Title Text Banner */}
               <div className="relative mb-6">
                 <h1 className="text-6xl md:text-7xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-red-500 drop-shadow-[0_6px_15px_rgba(0,0,0,1)]">
                   킹 오브 타이핑
@@ -401,7 +412,6 @@ export function App() {
                 </div>
               </div>
 
-              {/* Fighter VS Avatars Showcase Preview */}
               <div className="flex justify-center items-center gap-6 mb-6">
                 <div className="w-14 h-14 rounded-full border-2 border-amber-400 bg-slate-900/90 overflow-hidden shadow-[0_0_15px_#f59e0b]">
                   <div dangerouslySetInnerHTML={{ __html: CHARACTERS[0].avatarSvg }} className="w-full h-full" />
@@ -412,13 +422,11 @@ export function App() {
                 </div>
               </div>
 
-              {/* Sub Description Box */}
               <p className="text-slate-200 text-xs md:text-sm max-w-lg mx-auto font-sans font-semibold leading-relaxed mb-6 bg-black/80 p-3.5 rounded-xl border border-amber-500/40 backdrop-blur-sm">
                 숫자 <strong className="text-amber-400 font-mono">[1]약공격(단어)</strong>, <strong className="text-orange-400 font-mono">[2]중공격(짧은문장)</strong>, <strong className="text-rose-400 font-mono">[3]강공격(필살기)</strong> 키를 
                 전환하고 타자로 상대 격투가를 KO 시키세요!
               </p>
 
-              {/* Coin Insert Animation */}
               <div className="text-yellow-300 font-mono font-black text-sm tracking-widest animate-pulse flex items-center justify-center gap-2 bg-black/70 py-1.5 px-4 rounded-lg border border-yellow-500/40 w-max mx-auto shadow-md">
                 <span>INSERT COIN</span>
                 <span className="text-slate-400">•</span>
@@ -462,7 +470,7 @@ export function App() {
           <MultiplayerLobby 
             user={user}
             onStartMatch={startMultiMatchGame}
-            onBack={() => setGameMode('menu')}
+            onBack={goToMainMenu}
           />
         )}
 
@@ -503,7 +511,7 @@ export function App() {
               </h3>
               <p className="text-xs font-mono text-slate-400 mb-4">
                 {gameOverResult === 'win' 
-                  ? `STAGE ${stage} CLEAR!` 
+                  ? (stage === 7 ? '🎉 ALL STAGES CLEARED! CHAMPION!' : `STAGE ${stage} CLEAR!`) 
                   : 'TRY AGAIN WITH HIGHER TYPING SPEED!'}
               </p>
 
@@ -524,26 +532,27 @@ export function App() {
                 </div>
               </div>
 
+              {/* 모달 버튼 영역 (버그 수정: 메인 이동 및 다음 스테이지 진행 버튼) */}
               <div className="flex gap-3">
                 <button
-                  onClick={() => setGameMode('menu')}
-                  className="flex-1 bg-[#141923] hover:bg-slate-800 text-slate-300 py-3 rounded-lg font-mono font-bold text-xs border border-slate-700"
+                  onClick={goToMainMenu}
+                  className="flex-1 bg-[#141923] hover:bg-slate-800 text-slate-300 py-3 rounded-lg font-mono font-bold text-xs border border-slate-700 transition-colors"
                 >
-                  MAIN MENU
+                  🏠 메인 메뉴
                 </button>
                 {gameMode === 'solo' && gameOverResult === 'win' && stage < 7 ? (
                   <button
-                    onClick={() => startSoloGame(stage + 1)}
-                    className="flex-1 bg-[#f5a623] hover:bg-amber-400 text-black py-3 rounded-lg font-mono font-black text-xs uppercase shadow-[0_0_15px_rgba(245,166,35,0.4)]"
+                    onClick={handleNextStage}
+                    className="flex-1 bg-[#f5a623] hover:bg-amber-400 text-black py-3 rounded-lg font-mono font-black text-xs uppercase shadow-[0_0_15px_rgba(245,166,35,0.4)] transition-all transform hover:scale-105"
                   >
-                    STAGE {stage + 1}!
+                    다음 스테이지! ⚔️ (ST.{stage + 1})
                   </button>
                 ) : (
                   <button
-                    onClick={() => startSoloGame(stage)}
-                    className="flex-1 bg-[#f5a623] hover:bg-amber-400 text-black py-3 rounded-lg font-mono font-black text-xs uppercase shadow-[0_0_15px_rgba(245,166,35,0.4)]"
+                    onClick={handleRetryStage}
+                    className="flex-1 bg-[#f5a623] hover:bg-amber-400 text-black py-3 rounded-lg font-mono font-black text-xs uppercase shadow-[0_0_15px_rgba(245,166,35,0.4)] transition-all transform hover:scale-105"
                   >
-                    RETRY 🥊
+                    다시 도전 🥊
                   </button>
                 )}
               </div>
